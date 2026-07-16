@@ -1,0 +1,26 @@
+# ==========================================================================
+# Ambiente local de desenvolvimento do banco PostgreSQL do Agiliza Frota.
+# Uso: docker compose up -d
+# Depois configure DATABASE_URL no .env apontando para localhost:5432.
+# ==========================================================================
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agilizafrota-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agiliza
+      POSTGRES_PASSWORD: agiliza
+      POSTGRES_DB: agilizafrota
+    ports:
+      - "5432:5432"
+    volumes:
+      - agilizafrota_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agiliza -d agilizafrota"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  agilizafrota_pgdata:

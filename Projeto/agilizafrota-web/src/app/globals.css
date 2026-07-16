@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens - Agiliza Frota (clinico institucional)
+   Azul/branco, alto contraste, legibilidade para uso sob pressao.
+   ========================================================================== */
+:root {
+  /* Marca */
+  --brand: #1256b8;          /* azul institucional */
+  --brand-dark: #0e458f;
+  --brand-light: #e8f0fc;
+  --brand-contrast: #ffffff;
+
+  /* Superficies */
+  --surface: #ffffff;
+  --surface-muted: #f4f6fa;
+  --surface-border: #dce3ec;
+
+  /* Conteudo (texto) */
+  --content: #101828;        /* quase preto, alto contraste */
+  --content-muted: #5b6472;
+  --content-inverse: #ffffff;
+
+  /* Estados de veiculo */
+  --status-disponivel: #157347;
+  --status-uso: #1256b8;
+  --status-manutencao: #b45309;
+
+  /* Prioridades de chamado */
+  --prio-critica: #b42318;
+  --prio-alta: #c4560c;
+  --prio-media: #1256b8;
+  --prio-baixa: #5b6472;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--surface-muted);
+  color: var(--content);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Acessibilidade: foco visivel consistente (heuristica de Nielsen). */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}

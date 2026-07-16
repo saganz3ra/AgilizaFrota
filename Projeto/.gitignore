@@ -1,0 +1,47 @@
+# Dependencias
+node_modules/
+
+# Variaveis de ambiente e segredos (NUNCA versionar)
+.env
+.env.local
+.env.*.local
+
+# Chave de servico do Firebase Admin (segredo)
+firebase-key.json
+*.pem
+*.key
+*.p12
+
+# Firebase config (Android/iOS) - contem API keys do projeto
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Assinatura de app Android (segredo critico - se vazar, nao ha como revogar)
+android/key.properties
+*.jks
+*.keystore
+
+# Flutter
+.dart_tool/
+.flutter-plugin-dependencies
+.pub-cache/
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cobertura de testes
+coverage/
+
+# Arquivos de sistema operacional / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

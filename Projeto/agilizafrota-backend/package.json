@@ -1,0 +1,41 @@
+{
+  "name": "agilizafrota-backend",
+  "version": "0.1.0",
+  "description": "API REST do Agiliza Frota - sistema de gestao de frotas hospitalares. Sprint 1: Setup + Autenticacao.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "criar-central": "node src/db/criarCentral.js"
+  },
+  "keywords": [
+    "agiliza-frota",
+    "gestao-de-frotas",
+    "hospitalar",
+    "express",
+    "postgresql",
+    "firebase"
+  ],
+  "author": "Rafael Sagan Souza",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "firebase-admin": "^12.4.0",
+    "helmet": "^7.1.0",
+    "pg": "^8.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PhoneCall, Plus, Radio, Bell, XCircle } from "lucide-react";
+import { PhoneCall, Plus, Radio, Bell, XCircle, Ambulance } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useChamadosStream, EventoChamado } from "@/lib/useChamadosStream";
 import { tocarAlerta } from "@/lib/som";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { NovoChamadoModal } from "@/components/chamados/NovoChamadoModal";
+import { AtribuirModal } from "@/components/chamados/AtribuirModal";
 
 const RANK: Record<PrioridadeChamado, number> = { critica: 0, alta: 1, media: 2, baixa: 3 };
 const TOM_PRIORIDADE: Record<PrioridadeChamado, "critica" | "alta" | "media" | "baixa"> = {
@@ -48,6 +49,7 @@ export default function ChamadosPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [filtro, setFiltro] = useState<Filtro>("ativos");
   const [modalAberto, setModalAberto] = useState(false);
+  const [chamadoAtribuir, setChamadoAtribuir] = useState<Chamado | null>(null);
   const [destaque, setDestaque] = useState<string | null>(null);
   const [ultimoAlerta, setUltimoAlerta] = useState<Chamado | null>(null);
 
@@ -194,10 +196,16 @@ export default function ChamadosPage() {
                 <div className="flex items-center gap-3">
                   <Badge tom="neutro">{ROTULO_STATUS[c.status]}</Badge>
                   {CANCELAVEL.includes(c.status) && (
-                    <Button variante="ghost" tamanho="sm" onClick={() => cancelar(c.id)}>
-                      <XCircle size={16} />
-                      Cancelar
-                    </Button>
+                    <>
+                      <Button variante="secundario" tamanho="sm" onClick={() => setChamadoAtribuir(c)}>
+                        <Ambulance size={16} />
+                        {c.status === "aberto" ? "Acionar" : "Ver acionamento"}
+                      </Button>
+                      <Button variante="ghost" tamanho="sm" onClick={() => cancelar(c.id)}>
+                        <XCircle size={16} />
+                        Cancelar
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardBody>
@@ -210,6 +218,15 @@ export default function ChamadosPage() {
         aberto={modalAberto}
         aoFechar={() => setModalAberto(false)}
         aoCriar={(c) => upsert(c, false)}
+      />
+
+      <AtribuirModal
+        chamado={chamadoAtribuir}
+        aoFechar={() => setChamadoAtribuir(null)}
+        aoAtualizar={(c) => {
+          upsert(c, false);
+          setChamadoAtribuir(c);
+        }}
       />
     </div>
   );

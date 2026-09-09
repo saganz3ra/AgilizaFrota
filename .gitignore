@@ -1,0 +1,43 @@
+# ==========================================================================
+# Agiliza Frota — regras gerais do repositorio.
+# Cada aplicacao tem seu proprio .gitignore com as regras especificas.
+# ==========================================================================
+
+# --- Configuracao de IDE (pessoal de cada maquina, nao do projeto) --------
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# --- Sistema operacional --------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- Segredos (redundante com os .gitignore de cada app, de proposito) ----
+# Uma segunda barreira: se um .gitignore de subpasta sumir, estes padroes
+# continuam valendo. Ja aconteceu de arquivos de configuracao sumirem do
+# disco neste projeto.
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/firebase-key.json
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_options.dart
+**/local.properties
+
+# --- Evidencias fotograficas enviadas pelos motoristas --------------------
+# Contem imagem do interior do veiculo e, eventualmente, de pessoas (LGPD).
+**/uploads/
+
+# --- Artefatos de build ---------------------------------------------------
+node_modules/
+.next/
+build/
+.dart_tool/

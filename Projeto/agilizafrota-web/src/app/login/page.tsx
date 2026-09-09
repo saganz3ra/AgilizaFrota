@@ -12,17 +12,38 @@ const PAPEIS_WEB = ["central", "recepcionista"] as const;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { usuarioFirebase, perfil, carregando, entrar, sair } = useAuth();
+  const { usuarioFirebase, perfil, erroPerfil, carregando, entrar, sair } = useAuth();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  // Após autenticar, valida o perfil e redireciona (ou bloqueia).
+  // Após autenticar, valida o perfil e redireciona (ou mostra a causa real).
   useEffect(() => {
     if (carregando || !usuarioFirebase) return;
     if (perfil === null) {
-      setErro("Sua conta não possui perfil no sistema. Procure a Central.");
+      // Traduz o erro real do /auth/me em vez de assumir "sem perfil".
+      let msg = "Não foi possível carregar seu perfil.";
+      switch (erroPerfil?.codigo) {
+        case "PERFIL_NAO_PROVISIONADO":
+          msg = "Sua conta ainda não tem perfil no sistema. Rode o comando criar-central no backend.";
+          break;
+        case "USUARIO_INATIVO":
+          msg = "Sua conta está inativa. Peça para reativá-la.";
+          break;
+        case "TOKEN_INVALIDO":
+          msg = "Token inválido: o app web e o backend podem estar em projetos Firebase diferentes.";
+          break;
+        case "FIREBASE_INDISPONIVEL":
+          msg = "O backend está sem a chave do Firebase (firebase-key.json).";
+          break;
+        case "SEM_CONEXAO":
+          msg = "Sem conexão com a API. O backend está rodando na porta certa?";
+          break;
+        default:
+          if (erroPerfil) msg = `Erro ao carregar o perfil (${erroPerfil.status}). ${erroPerfil.message}`;
+      }
+      setErro(msg);
       void sair();
       return;
     }
@@ -32,7 +53,7 @@ export default function LoginPage() {
       return;
     }
     router.replace("/dashboard");
-  }, [carregando, usuarioFirebase, perfil, router, sair]);
+  }, [carregando, usuarioFirebase, perfil, erroPerfil, router, sair]);
 
   async function aoEnviar(e: FormEvent) {
     e.preventDefault();

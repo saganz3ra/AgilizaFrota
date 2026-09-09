@@ -1,0 +1,20 @@
+# dependencias
+/node_modules
+
+# next
+/.next/
+/out/
+/build
+
+# env (NUNCA versionar)
+.env
+.env*.local
+
+# debug / logs
+npm-debug.log*
+*.log
+
+# sistema
+.DS_Store
+*.pem
+next-env.d.ts

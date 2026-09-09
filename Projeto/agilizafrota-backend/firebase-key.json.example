@@ -1,0 +1,11 @@
+{
+  "_comentario": "MODELO. Baixe a chave real em: Console do Firebase > Configuracoes do Projeto > Contas de Servico > Gerar nova chave privada. Salve o JSON como 'firebase-key.json' na raiz do backend. O arquivo real esta no .gitignore e NAO deve ser versionado.",
+  "type": "service_account",
+  "project_id": "SEU_PROJECT_ID",
+  "private_key_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "private_key": "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n",
+  "client_email": "firebase-adminsdk-xxxxx@SEU_PROJECT_ID.iam.gserviceaccount.com",
+  "client_id": "000000000000000000000",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token"
+}

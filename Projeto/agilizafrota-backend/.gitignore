@@ -1,0 +1,27 @@
+# Dependencias
+node_modules/
+
+# Variaveis de ambiente e segredos (NUNCA versionar)
+.env
+.env.local
+.env.*.local
+
+# Chave de servico do Firebase Admin (SEGREDO - nunca versionar)
+firebase-key.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cobertura de testes
+coverage/
+
+# Arquivos de sistema operacional / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Evidencias fotograficas enviadas pelo app (nao versionar)
+uploads/

@@ -15,12 +15,13 @@ import {
   User,
 } from "firebase/auth";
 import { auth } from "./firebase";
-import { api } from "./api";
+import { api, ApiError } from "./api";
 import { Usuario } from "@/types/api";
 
 interface AuthContextValue {
   usuarioFirebase: User | null;
   perfil: Usuario | null;
+  erroPerfil: ApiError | null;
   carregando: boolean;
   entrar: (email: string, senha: string) => Promise<void>;
   sair: () => Promise<void>;
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuarioFirebase, setUsuarioFirebase] = useState<User | null>(null);
   const [perfil, setPerfil] = useState<Usuario | null>(null);
+  const [erroPerfil, setErroPerfil] = useState<ApiError | null>(null);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -40,12 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const { usuario } = await api<{ usuario: Usuario }>("/auth/me");
           setPerfil(usuario);
-        } catch {
-          // Autenticado no Firebase, mas sem perfil no sistema.
+          setErroPerfil(null);
+        } catch (e) {
+          // Guarda o erro real (404 sem perfil, 403 token invalido, sem conexao...).
           setPerfil(null);
+          setErroPerfil(e instanceof ApiError ? e : new ApiError(0, "Erro desconhecido"));
         }
       } else {
         setPerfil(null);
+        setErroPerfil(null);
       }
       setCarregando(false);
     });
@@ -60,11 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function sair() {
     await signOut(auth);
     setPerfil(null);
+    setErroPerfil(null);
   }
 
   const valor = useMemo(
-    () => ({ usuarioFirebase, perfil, carregando, entrar, sair }),
-    [usuarioFirebase, perfil, carregando],
+    () => ({ usuarioFirebase, perfil, erroPerfil, carregando, entrar, sair }),
+    [usuarioFirebase, perfil, erroPerfil, carregando],
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

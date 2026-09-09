@@ -17,6 +17,7 @@ export class ApiError extends Error {
 /**
  * Wrapper de fetch para a API. Injeta o ID token do Firebase no cabecalho
  * Authorization quando ha um usuario logado. Retorna o JSON tipado.
+ * Erros de rede viram ApiError(0, ..., 'SEM_CONEXAO').
  */
 export async function api<T>(caminho: string, opcoes: RequestInit = {}): Promise<T> {
   const headers = new Headers(opcoes.headers);
@@ -28,7 +29,16 @@ export async function api<T>(caminho: string, opcoes: RequestInit = {}): Promise
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const resp = await fetch(`${BASE_URL}${caminho}`, { ...opcoes, headers });
+  let resp: Response;
+  try {
+    resp = await fetch(`${BASE_URL}${caminho}`, { ...opcoes, headers });
+  } catch {
+    throw new ApiError(
+      0,
+      "Não foi possível conectar à API. Verifique se o backend está rodando e a URL configurada.",
+      "SEM_CONEXAO",
+    );
+  }
 
   let corpo: unknown = null;
   const texto = await resp.text();

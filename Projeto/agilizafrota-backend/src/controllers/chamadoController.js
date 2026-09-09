@@ -7,10 +7,11 @@
  *   conectadas (RF06 / RNF05: multiplos assinantes).
  * - Idempotencia (offline/reenvio): "id" pode vir da origem.
  */
-const { query } = require('../config/db');
+const { query, pool } = require('../config/db');
 const { AppError } = require('../utils/AppError');
 const { asyncHandler } = require('../utils/asyncHandler');
 const eventos = require('../services/chamadosEventos');
+const { cancelarAtivaNaTransacao } = require('../services/atribuicoes');
 
 const COLUNAS = `id, tipo, prioridade, natureza, descricao, status, origem_tipo,
                  criado_por, solicitante_nome, solicitante_telefone,
@@ -152,12 +153,31 @@ const cancelar = asyncHandler(async (req, res) => {
   if (status === 'concluido' || status === 'cancelado') {
     throw new AppError(409, `Chamado ja esta ${status}.`, 'STATUS_INVALIDO');
   }
-  const { rows } = await query(
-    `UPDATE chamados SET status = 'cancelado' WHERE id = $1 RETURNING ${COLUNAS}`,
-    [req.params.id],
-  );
-  eventos.publicar('chamado:atualizado', rows[0]);
-  res.json({ chamado: rows[0], mensagem: 'Chamado cancelado.' });
+  // Cancelar o chamado tambem libera o veiculo eventualmente acionado (RF07).
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const atribuicao = await cancelarAtivaNaTransacao(client, req.params.id, 'Chamado cancelado');
+    const { rows } = await client.query(
+      `UPDATE chamados SET status = 'cancelado' WHERE id = $1 RETURNING ${COLUNAS}`,
+      [req.params.id],
+    );
+    await client.query('COMMIT');
+
+    eventos.publicar('chamado:atualizado', rows[0]);
+    res.json({
+      chamado: rows[0],
+      atribuicao_cancelada: atribuicao ? atribuicao.id : null,
+      mensagem: atribuicao
+        ? 'Chamado cancelado; veiculo liberado.'
+        : 'Chamado cancelado.',
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 });
 
 // GET /api/chamados/stream - alerta em tempo real (SSE) para a central.

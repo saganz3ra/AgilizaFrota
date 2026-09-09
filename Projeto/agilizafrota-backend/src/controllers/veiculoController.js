@@ -84,7 +84,62 @@ const criar = asyncHandler(async (req, res) => {
 });
 
 // PUT /api/veiculos/:id - atualizacao parcial.
+/**
+ * Impede que a central quebre, por edicao manual, os invariantes que o
+ * fluxo operacional mantem (RNF05).
+ *
+ * O status do veiculo nao e um campo livre: ele e CONSEQUENCIA do que
+ * acontece na operacao. Abrir turno marca "em_uso"; encerrar devolve para
+ * "disponivel"; item critico reprovado manda para "manutencao". Deixar a
+ * central sobrescrever isso a qualquer momento produzia estados
+ * impossiveis - um veiculo "disponivel" com turno aberto, que a sugestao
+ * (RF08) ofereceria para um segundo motorista.
+ *
+ * Continua sendo possivel mandar para "manutencao": um defeito descoberto
+ * durante o turno precisa ser registrado na hora. O que se barra e
+ * declarar livre o que esta ocupado.
+ */
+async function garantirVeiculoLivre(veiculoId, { novoStatus, novoAtivo } = {}) {
+  const querSoltar =
+    novoStatus === 'disponivel' || novoAtivo === false;
+  if (!querSoltar) return;
+
+  const turno = await query(
+    `SELECT t.id, u.nome AS motorista
+       FROM turnos t
+       LEFT JOIN usuarios u ON u.id = t.motorista_id
+      WHERE t.veiculo_id = $1 AND t.status = 'aberto'
+      LIMIT 1`,
+    [veiculoId],
+  );
+  if (turno.rows.length > 0) {
+    throw new AppError(
+      409,
+      `Este veiculo esta em turno aberto (motorista: ${turno.rows[0].motorista || 'nao identificado'}). ` +
+        'Encerre o turno antes de alterar a situacao do veiculo.',
+      'VEICULO_EM_TURNO',
+    );
+  }
+
+  const atribuicao = await query(
+    "SELECT id FROM atribuicoes WHERE veiculo_id = $1 AND status = 'ativa' LIMIT 1",
+    [veiculoId],
+  );
+  if (atribuicao.rows.length > 0) {
+    throw new AppError(
+      409,
+      'Este veiculo esta acionado para um chamado. Libere a atribuicao antes de alterar a situacao.',
+      'VEICULO_ACIONADO',
+    );
+  }
+}
+
 const atualizar = asyncHandler(async (req, res) => {
+  await garantirVeiculoLivre(req.params.id, {
+    novoStatus: req.body.status,
+    novoAtivo: req.body.ativo,
+  });
+
   if (req.body.unidade_id) {
     await validarUnidade(req.body.unidade_id);
   }
@@ -124,6 +179,8 @@ const atualizar = asyncHandler(async (req, res) => {
 
 // PATCH /api/veiculos/:id/status - alteracao rapida do status operacional.
 const alterarStatus = asyncHandler(async (req, res) => {
+  await garantirVeiculoLivre(req.params.id, { novoStatus: req.body.status });
+
   const { rows } = await query(
     `UPDATE veiculos SET status = $1 WHERE id = $2 RETURNING ${COLUNAS}`,
     [req.body.status, req.params.id],
@@ -136,6 +193,10 @@ const alterarStatus = asyncHandler(async (req, res) => {
 
 // DELETE /api/veiculos/:id - soft-delete (desativa).
 const desativar = asyncHandler(async (req, res) => {
+  // Baixar da frota um veiculo em turno deixaria o motorista sem registro
+  // valido para encerrar a jornada.
+  await garantirVeiculoLivre(req.params.id, { novoAtivo: false });
+
   const { rows } = await query(
     `UPDATE veiculos SET ativo = FALSE WHERE id = $1 RETURNING ${COLUNAS}`,
     [req.params.id],

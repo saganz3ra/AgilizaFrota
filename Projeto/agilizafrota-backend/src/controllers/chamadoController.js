@@ -13,11 +13,7 @@ const { asyncHandler } = require('../utils/asyncHandler');
 const eventos = require('../services/chamadosEventos');
 const { cancelarAtivaNaTransacao } = require('../services/atribuicoes');
 
-const COLUNAS = `id, tipo, prioridade, natureza, descricao, status, origem_tipo,
-                 criado_por, solicitante_nome, solicitante_telefone,
-                 origem_endereco, origem_lat, origem_lng,
-                 destino_unidade_id, destino_endereco, aberto_em,
-                 criado_em, atualizado_em`;
+const { COLUNAS_CHAMADO: COLUNAS } = require('../constants/colunasChamado');
 
 /** Prioridade padrao a partir do tipo, se nao informada explicitamente. */
 function derivarPrioridade(tipo, prioridade) {

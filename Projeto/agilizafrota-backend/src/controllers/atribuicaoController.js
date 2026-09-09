@@ -26,11 +26,7 @@ const {
   traduzirConflitoAtribuicao,
 } = require('../services/atribuicoes');
 
-const COLS_CHAMADO = `id, tipo, prioridade, natureza, descricao, status, origem_tipo,
-                      criado_por, solicitante_nome, solicitante_telefone,
-                      origem_endereco, origem_lat, origem_lng,
-                      destino_unidade_id, destino_endereco, aberto_em,
-                      criado_em, atualizado_em`;
+const { COLUNAS_CHAMADO: COLS_CHAMADO } = require('../constants/colunasChamado');
 
 const STATUS_ENCERRADOS = ['concluido', 'cancelado'];
 

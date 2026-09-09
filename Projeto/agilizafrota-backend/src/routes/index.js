@@ -21,6 +21,7 @@ const auditoriaRoutes = require('./auditoriaRoutes');
 const lgpdRoutes = require('./lgpdRoutes');
 const metricaRoutes = require('./metricaRoutes');
 const syncRoutes = require('./syncRoutes');
+const uploadRoutes = require('./uploadRoutes');
 
 const router = Router();
 
@@ -43,5 +44,6 @@ router.use('/auditoria', auditoriaRoutes);
 router.use('/lgpd', lgpdRoutes);
 router.use('/metricas', metricaRoutes);
 router.use('/sync', syncRoutes);
+router.use('/upload', uploadRoutes);
 
 module.exports = router;

@@ -16,6 +16,7 @@ const { AppError } = require('../utils/AppError');
 const { asyncHandler } = require('../utils/asyncHandler');
 const eventos = require('../services/chamadosEventos');
 const { calcularMetricas, verificarConsistencia } = require('../services/metricasAtendimento');
+const { COLUNAS_CHAMADO } = require('../constants/colunasChamado');
 
 const COLS = `id, chamado_id, atribuicao_id, veiculo_id, motorista_id, turno_id, status,
               km_saida, km_local, km_final,
@@ -155,7 +156,7 @@ const iniciar = asyncHandler(async (req, res) => {
       ],
     );
     const chamadoAtualizado = await client.query(
-      "UPDATE chamados SET status = 'em_atendimento' WHERE id = $1 RETURNING id, status, natureza, prioridade, tipo",
+      `UPDATE chamados SET status = 'em_atendimento' WHERE id = $1 RETURNING ${COLUNAS_CHAMADO}`,
       [chamado_id],
     );
     await client.query(
@@ -266,7 +267,7 @@ const concluir = asyncHandler(async (req, res) => {
     const atualizado = await recalcular(client, req.params.id);
 
     const chamadoAtualizado = await client.query(
-      "UPDATE chamados SET status = 'concluido' WHERE id = $1 RETURNING id, status, natureza, prioridade, tipo",
+      `UPDATE chamados SET status = 'concluido' WHERE id = $1 RETURNING ${COLUNAS_CHAMADO}`,
       [atendimento.chamado_id],
     );
     await client.query(
@@ -307,7 +308,7 @@ const cancelar = asyncHandler(async (req, res) => {
     );
     // O chamado volta para "atribuido": o veiculo segue acionado.
     const chamadoAtualizado = await client.query(
-      "UPDATE chamados SET status = 'atribuido' WHERE id = $1 RETURNING id, status, natureza, prioridade, tipo",
+      `UPDATE chamados SET status = 'atribuido' WHERE id = $1 RETURNING ${COLUNAS_CHAMADO}`,
       [atendimento.chamado_id],
     );
     await client.query('COMMIT');

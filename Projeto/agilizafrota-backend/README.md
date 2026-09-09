@@ -159,6 +159,42 @@ npm run criar-central -- "admin@agilizafrota.com" "senhaForte123" "Administrador
 Depois disso já é possível entrar no painel web com esse e-mail e senha. Qualquer
 e-mail válido serve — o que concede o acesso administrativo é o papel `central`.
 
+### 5.2. Limpar dados de teste (só desenvolvimento)
+
+```bash
+npm run limpar-dev              # pede confirmação
+npm run limpar-dev -- --sim     # sem perguntar
+npm run limpar-dev -- --com-fotos
+```
+
+Apaga turnos, checklists, atendimentos, acionamentos, chamados, posições,
+notificações, auditoria e consentimentos. **Preserva** unidades, veículos e
+usuários, que custam a recriar.
+
+> **Por que isso não é um endpoint da API.** O Agiliza Frota não expõe nenhuma
+> rota de exclusão, e isso é decisão de projeto: o sistema veio substituir a ficha
+> de papel *sem* perder o rastro (RF12/RF14), e um turno que pode ser apagado é
+> indistinguível de um turno que nunca existiu. Para dados pessoais, a saída
+> legítima é a anonimização da LGPD (`POST /api/lgpd/usuarios/:id/anonimizar`),
+> que remove a identificação e preserva o registro operacional. Este script existe
+> só para o lixo de teste acumulado em desenvolvimento — e se recusa a rodar com
+> `NODE_ENV=production`.
+
+### 5.3. Remover cadastros de teste (só desenvolvimento)
+
+```bash
+npm run remover-cadastro -- --usuario email@dominio.com
+npm run remover-cadastro -- --veiculo ABC1234
+npm run remover-cadastro -- --usuario a@x.com --veiculo ABC1234 --sim
+```
+
+Apaga o usuário **também no Firebase Authentication** — apagar só a linha do banco
+deixaria a conta órfã, capaz de autenticar mas sem perfil, o que produz um erro
+difícil de diagnosticar.
+
+Recusa-se a remover: cadastro que ainda tem histórico (rode `limpar-dev` antes) e
+o último operador `central` ativo (evita ficar sem acesso administrativo).
+
 ### 6. Iniciar a API
 
 ```bash
@@ -449,6 +485,24 @@ Verifique: `GET http://localhost:3000/api/status`.
 > substitui os dados identificáveis por um pseudônimo irreversível e mantém o registro
 > operacional; pelo art. 12 da LGPD, dado anonimizado deixa de ser dado pessoal. Detalhes
 > em `docs/lgpd.md`.
+
+**Evidências fotográficas (RF03)** — `motorista` e `central`.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/upload` | Envia a imagem (`multipart/form-data`, campo `arquivo`) e devolve a URL |
+| GET | `/api/uploads/<ano-mês>/<arquivo>` | Serve a imagem gravada |
+
+> **Por que o arquivo fica aqui e não numa nuvem de terceiros:** a foto do painel
+> pode capturar o interior do veículo e, eventualmente, pessoas. Guardar a imagem na
+> infraestrutura da própria instituição evita compartilhar dado pessoal com um
+> operador externo sem necessidade (LGPD, art. 6º) e dispensa um plano pago de nuvem.
+> O nome de cada arquivo tem 16 bytes aleatórios, de modo que ninguém consegue
+> adivinhar a URL de outra foto; a leitura é aberta porque a URL é gravada no turno e
+> precisa abrir direto no navegador do operador e no relatório impresso, onde não há
+> como enviar cabeçalho de autenticação. Em produção com várias instâncias da API,
+> a pasta vira um volume compartilhado ou um bucket S3/MinIO — o ponto de troca está
+> isolado em `config/uploads.js`.
 
 Todas as rotas protegidas esperam o cabeçalho:
 

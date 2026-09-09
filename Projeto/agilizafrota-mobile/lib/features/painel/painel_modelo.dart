@@ -2,6 +2,7 @@
 ///
 /// Uma unica chamada resolve a tela inicial inteira - decisao do backend
 /// para o RNF11 (minimizar interacoes). Aqui apenas espelhamos o formato.
+library;
 
 /// Turno aberto do motorista, se houver.
 class TurnoResumo {

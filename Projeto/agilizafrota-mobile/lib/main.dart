@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/auth/auth_servico.dart';
+import 'core/offline/sincronizador.dart';
 import 'core/tema/cores.dart';
 import 'core/tema/tema.dart';
 import 'core/widgets/aviso.dart';
 import 'core/widgets/carregando.dart';
 import 'features/login/login_pagina.dart';
 import 'features/painel/painel_pagina.dart';
+import 'features/rastreamento/rastreamento_servico.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -58,8 +60,23 @@ class AgilizaFrotaApp extends StatelessWidget {
       );
     }
 
-    return ChangeNotifierProvider(
-      create: (_) => AuthServico(),
+    // Tres servicos com ciclo de vida do app inteiro. A ordem importa:
+    // o sincronizador precisa do cliente HTTP criado pela autenticacao, e
+    // o rastreamento precisa do sincronizador para enfileirar posicoes
+    // quando faltar rede.
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthServico()),
+        ChangeNotifierProvider(
+          create: (ctx) => Sincronizador(api: ctx.read<AuthServico>().api),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => RastreamentoServico(
+            api: ctx.read<AuthServico>().api,
+            sincronizador: ctx.read<Sincronizador>(),
+          ),
+        ),
+      ],
       child: MaterialApp(
         title: 'Agiliza Frota',
         theme: TemaApp.claro,

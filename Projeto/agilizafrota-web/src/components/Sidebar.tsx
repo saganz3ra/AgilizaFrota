@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import {
   Ambulance,
   LayoutDashboard,
@@ -10,20 +11,43 @@ import {
   Building2,
   Users,
   ClipboardList,
+  MapPinned,
+  BellRing,
+  Stethoscope,
 } from "lucide-react";
 
-const ITENS = [
+/**
+ * Navegação da Central: gerencia a operação inteira.
+ */
+const ITENS_CENTRAL = [
   { href: "/dashboard", rotulo: "Painel", icone: LayoutDashboard },
   { href: "/chamados", rotulo: "Chamados", icone: PhoneCall },
+  { href: "/frota", rotulo: "Frota", icone: MapPinned },
+  { href: "/atendimentos", rotulo: "Atendimentos", icone: Stethoscope },
+  { href: "/chegadas", rotulo: "Chegadas", icone: BellRing },
   { href: "/veiculos", rotulo: "Veículos", icone: Truck },
   { href: "/turnos", rotulo: "Turnos", icone: ClipboardList },
   { href: "/unidades", rotulo: "Unidades", icone: Building2 },
   { href: "/usuarios", rotulo: "Usuários", icone: Users },
 ];
 
+/**
+ * Navegação da recepção hospitalar: só o que lhe compete.
+ *
+ * Ela não gerencia frota nem cadastros — precisa saber qual ambulância está
+ * chegando para preparar a entrada. Mostrar as telas da Central seria ruído,
+ * e ainda daria a impressão de acesso que o backend recusaria de qualquer
+ * forma (as rotas de gestão exigem o papel `central`).
+ */
+const ITENS_RECEPCAO = [
+  { href: "/chegadas", rotulo: "Chegadas", icone: BellRing },
+];
+
 /** Navegacao lateral do painel. Itens ainda sem tela levam a rotas futuras. */
 export function Sidebar() {
   const pathname = usePathname();
+  const { perfil } = useAuth();
+  const itens = perfil?.papel === "recepcionista" ? ITENS_RECEPCAO : ITENS_CENTRAL;
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-surface-border bg-surface md:flex">
       <div className="flex items-center gap-2 px-5 py-4">
@@ -33,7 +57,7 @@ export function Sidebar() {
         <span className="font-bold text-content">Agiliza Frota</span>
       </div>
       <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
-        {ITENS.map(({ href, rotulo, icone: Icone }) => {
+        {itens.map(({ href, rotulo, icone: Icone }) => {
           const ativo = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link

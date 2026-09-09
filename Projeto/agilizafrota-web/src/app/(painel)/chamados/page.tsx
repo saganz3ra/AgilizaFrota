@@ -17,6 +17,17 @@ import { Spinner } from "@/components/ui/Spinner";
 import { NovoChamadoModal } from "@/components/chamados/NovoChamadoModal";
 import { AtribuirModal } from "@/components/chamados/AtribuirModal";
 
+/**
+ * Formata data/hora sem nunca exibir "Invalid Date" ao operador.
+ * Uma data ausente ou malformada e um defeito nosso, e a tela nao deve
+ * transformar isso em ruido para quem esta atendendo uma emergencia.
+ */
+function formatarMomento(valor?: string | null): string {
+  if (!valor) return "—";
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? "—" : data.toLocaleString("pt-BR");
+}
+
 const RANK: Record<PrioridadeChamado, number> = { critica: 0, alta: 1, media: 2, baixa: 3 };
 const TOM_PRIORIDADE: Record<PrioridadeChamado, "critica" | "alta" | "media" | "baixa"> = {
   critica: "critica",
@@ -74,7 +85,12 @@ export default function ChamadosPage() {
     setChamados((atual) => {
       const existe = atual.some((c) => c.id === chamado.id);
       const lista = existe
-        ? atual.map((c) => (c.id === chamado.id ? chamado : c))
+        ? // MESCLA em vez de substituir. Um evento SSE pode trazer apenas os
+          // campos que mudaram; substituir o objeto inteiro apagaria o que
+          // ja sabiamos (foi assim que "aberto_em" sumia e a data virava
+          // "Invalid Date"). Mesclar mantem a tela consistente mesmo que
+          // algum publicador envie um payload parcial.
+          atual.map((c) => (c.id === chamado.id ? { ...c, ...chamado } : c))
         : [chamado, ...atual];
       return ordenar(lista);
     });
@@ -189,7 +205,7 @@ export default function ChamadosPage() {
                       {" · "}
                       {c.origem_tipo === "sistema_externo" ? "Sistema externo" : "Central"}
                       {" · "}
-                      {new Date(c.aberto_em).toLocaleString("pt-BR")}
+                      {formatarMomento(c.aberto_em)}
                     </p>
                   </div>
                 </div>

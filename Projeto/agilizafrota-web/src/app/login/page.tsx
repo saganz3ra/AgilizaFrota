@@ -52,7 +52,9 @@ export default function LoginPage() {
       void sair();
       return;
     }
-    router.replace("/dashboard");
+    // Cada perfil entra direto no que usa: a recepção não tem nada a
+    // fazer no painel de gestão da Central.
+    router.replace(perfil?.papel === "recepcionista" ? "/chegadas" : "/dashboard");
   }, [carregando, usuarioFirebase, perfil, erroPerfil, router, sair]);
 
   async function aoEnviar(e: FormEvent) {

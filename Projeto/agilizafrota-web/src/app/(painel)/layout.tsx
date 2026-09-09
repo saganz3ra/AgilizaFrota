@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Sidebar } from "@/components/Sidebar";
 import { Topbar } from "@/components/Topbar";
@@ -10,11 +10,22 @@ import { Spinner } from "@/components/ui/Spinner";
 /** Layout das telas autenticadas: guarda a sessao e monta o shell. */
 export default function PainelLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { usuarioFirebase, carregando } = useAuth();
+  const pathname = usePathname();
+  const { usuarioFirebase, perfil, carregando } = useAuth();
 
   useEffect(() => {
-    if (!carregando && !usuarioFirebase) router.replace("/login");
-  }, [carregando, usuarioFirebase, router]);
+    if (carregando) return;
+    if (!usuarioFirebase) {
+      router.replace("/login");
+      return;
+    }
+    // A recepção só tem acesso às chegadas. O backend já recusaria as demais
+    // rotas por RBAC; barrar aqui evita a tela de erro e a sensação de que
+    // algo quebrou.
+    if (perfil?.papel === "recepcionista" && !pathname.startsWith("/chegadas")) {
+      router.replace("/chegadas");
+    }
+  }, [carregando, usuarioFirebase, perfil, pathname, router]);
 
   if (carregando || !usuarioFirebase) {
     return (

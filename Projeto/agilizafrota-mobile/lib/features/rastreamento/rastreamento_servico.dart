@@ -83,7 +83,7 @@ class RastreamentoServico extends ChangeNotifier {
       notifyListeners();
     });
 
-    _relogio = Timer.periodic(intervaloEnvio, (_) => enviarAcumuladas());
+    _relogio = Timer.periodic(intervaloEnvio, (_) => _ciclo());
     _situacao = SituacaoGps.ativo;
     _erro = null;
     notifyListeners();
@@ -115,6 +115,44 @@ class RastreamentoServico extends ChangeNotifier {
       'registrado_em': posicao.timestamp.toUtc().toIso8601String(),
     });
     notifyListeners();
+  }
+
+  /// Ciclo periodico (a cada [intervaloEnvio]): garante a captura e envia.
+  Future<void> _ciclo() async {
+    await _capturarSePreciso();
+    await enviarAcumuladas();
+  }
+
+  /// Rede de seguranca para a captura.
+  ///
+  /// O `getPositionStream` filtra por distancia (30 m), mas o callback do SO
+  /// nem sempre dispara para movimento simulado — no emulador Android e comum
+  /// chegar so o primeiro fix e depois silenciar. Entao, se nenhum ponto
+  /// chegou pelo stream neste ciclo, lemos a posicao atual e so a guardamos se
+  /// o veiculo andou >= [filtroDistanciaM] desde o ultimo ponto. Isso mantem a
+  /// intencao "por distancia, nao por tempo" (nada de inundar com o veiculo
+  /// parado), sem depender apenas do callback do sistema.
+  Future<void> _capturarSePreciso() async {
+    if (_acumuladas.isNotEmpty) return; // o stream ja trouxe pontos
+    try {
+      final atual = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      if (_ultima == null) {
+        _aoReceberPosicao(atual);
+        return;
+      }
+      final metros = Geolocator.distanceBetween(
+        _ultima!.latitude,
+        _ultima!.longitude,
+        atual.latitude,
+        atual.longitude,
+      );
+      if (metros >= filtroDistanciaM) _aoReceberPosicao(atual);
+    } catch (_) {
+      // Sem fix agora (ex.: GPS momentaneamente indisponivel): o proximo
+      // ciclo tenta de novo. Nao e erro que valha interromper o turno.
+    }
   }
 
   /// Envia o lote acumulado; o que nao passar vai para a fila.

@@ -3,6 +3,14 @@
 import { FormEvent, useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { Unidade, Veiculo, StatusVeiculo } from "@/types/api";
+import {
+  coletar,
+  inteiroOpcional,
+  obrigatorio,
+  placa as validarPlaca,
+  tamanho,
+  useErrosCampo,
+} from "@/lib/validacao";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -16,6 +24,8 @@ interface Props {
   veiculo?: Veiculo | null; // quando presente, modo edição
 }
 
+const ANO_ATUAL = new Date().getFullYear();
+
 /** Formulário de criação/edição de veículo (RF02). */
 export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: Props) {
   const edicao = Boolean(veiculo);
@@ -28,10 +38,12 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
   const [unidadeId, setUnidadeId] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const { erros, setErros, limpar, limparTudo } = useErrosCampo();
 
   useEffect(() => {
     if (!aberto) return;
     setErro(null);
+    limparTudo();
     setPlaca(veiculo?.placa ?? "");
     setModelo(veiculo?.modelo ?? "");
     setMarca(veiculo?.marca ?? "");
@@ -39,11 +51,24 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
     setKm(veiculo ? String(veiculo.quilometragem_atual) : "");
     setStatus(veiculo?.status ?? "disponivel");
     setUnidadeId(veiculo?.unidade_id ?? "");
-  }, [aberto, veiculo]);
+  }, [aberto, veiculo, limparTudo]);
 
   async function aoEnviar(e: FormEvent) {
     e.preventDefault();
     setErro(null);
+
+    // Camada de UX: espelha as regras baratas do backend (veiculoValidators).
+    // Placa única, por exemplo, fica só no servidor — o cliente não tem como saber.
+    const encontrados = coletar({
+      placa: validarPlaca(placa),
+      modelo: obrigatorio(modelo, "Modelo") ?? tamanho(modelo, { max: 50, nome: "Modelo" }),
+      marca: tamanho(marca, { max: 30, nome: "Marca" }),
+      ano: inteiroOpcional(ano, { min: 1950, max: ANO_ATUAL + 1, nome: "Ano" }),
+      km: inteiroOpcional(km, { min: 0, nome: "Km atual" }),
+    });
+    setErros(encontrados);
+    if (Object.keys(encontrados).length > 0) return;
+
     setEnviando(true);
     try {
       const corpo: Record<string, unknown> = {
@@ -81,32 +106,61 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
 
   return (
     <Modal aberto={aberto} aoFechar={aoFechar} titulo={edicao ? "Editar veículo" : "Novo veículo"}>
-      <form onSubmit={aoEnviar} className="flex flex-col gap-4">
+      <form onSubmit={aoEnviar} noValidate className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Placa"
             value={placa}
-            onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+            onChange={(e) => {
+              setPlaca(e.target.value.toUpperCase());
+              limpar("placa");
+            }}
             placeholder="ABC1D23"
-            required
+            erro={erros.placa}
           />
           <Input
             label="Modelo"
             value={modelo}
-            onChange={(e) => setModelo(e.target.value)}
+            onChange={(e) => {
+              setModelo(e.target.value);
+              limpar("modelo");
+            }}
             placeholder="Sprinter"
-            required
+            erro={erros.modelo}
           />
         </div>
         <div className="grid grid-cols-3 gap-4">
-          <Input label="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Mercedes" />
-          <Input label="Ano" type="number" value={ano} onChange={(e) => setAno(e.target.value)} placeholder="2022" />
+          <Input
+            label="Marca"
+            value={marca}
+            onChange={(e) => {
+              setMarca(e.target.value);
+              limpar("marca");
+            }}
+            placeholder="Mercedes"
+            erro={erros.marca}
+          />
+          <Input
+            label="Ano"
+            type="number"
+            value={ano}
+            onChange={(e) => {
+              setAno(e.target.value);
+              limpar("ano");
+            }}
+            placeholder="2022"
+            erro={erros.ano}
+          />
           <Input
             label="Km atual"
             type="number"
             value={km}
-            onChange={(e) => setKm(e.target.value)}
+            onChange={(e) => {
+              setKm(e.target.value);
+              limpar("km");
+            }}
             placeholder="0"
+            erro={erros.km}
           />
         </div>
         <div className="grid grid-cols-2 gap-4">

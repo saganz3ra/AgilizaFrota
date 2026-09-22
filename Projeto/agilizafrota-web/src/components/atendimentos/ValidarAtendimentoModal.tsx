@@ -10,6 +10,7 @@ import {
   Usuario,
   Veiculo,
 } from "@/types/api";
+import { coletar, inteiroOpcional, useErrosCampo } from "@/lib/validacao";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -61,6 +62,7 @@ export function ValidarAtendimentoModal({
   const [kmAjustado, setKmAjustado] = useState("");
   const [tempoAjustado, setTempoAjustado] = useState("");
   const [observacao, setObservacao] = useState("");
+  const { erros, setErros, limpar, limparTudo } = useErrosCampo();
 
   const carregar = useCallback(async () => {
     try {
@@ -99,6 +101,19 @@ export function ValidarAtendimentoModal({
     if (!aprovado && observacao.trim().length === 0) {
       setErro("Descreva o motivo ao marcar o atendimento como não validado.");
       return;
+    }
+
+    // Espelha atendimentoValidators.validarAtendimento: os ajustes, quando
+    // preenchidos, precisam ser inteiros não-negativos (km e minutos).
+    if (ajustarValores) {
+      const encontrados = coletar({
+        km: inteiroOpcional(kmAjustado, { min: 0, nome: "Distância corrigida" }),
+        tempo: inteiroOpcional(tempoAjustado, { min: 0, nome: "Tempo corrigido" }),
+      });
+      setErros(encontrados);
+      if (Object.keys(encontrados).length > 0) return;
+    } else {
+      limparTudo();
     }
 
     setSalvando(true);
@@ -246,14 +261,22 @@ export function ValidarAtendimentoModal({
                     type="number"
                     min={0}
                     value={kmAjustado}
-                    onChange={(e) => setKmAjustado(e.target.value)}
+                    onChange={(e) => {
+                      setKmAjustado(e.target.value);
+                      limpar("km");
+                    }}
+                    erro={erros.km}
                   />
                   <Input
                     label="Tempo total corrigido (min)"
                     type="number"
                     min={0}
                     value={tempoAjustado}
-                    onChange={(e) => setTempoAjustado(e.target.value)}
+                    onChange={(e) => {
+                      setTempoAjustado(e.target.value);
+                      limpar("tempo");
+                    }}
+                    erro={erros.tempo}
                   />
                 </div>
               </>

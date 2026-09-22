@@ -39,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const cancelar = onAuthStateChanged(auth, async (u) => {
       setUsuarioFirebase(u);
       if (u) {
+        // Volta a "carregando" enquanto o perfil é buscado: sem isto, num
+        // login interativo (carregando já false) a UI veria o estado
+        // intermediário — usuário logado, perfil ainda nulo — e concluiria
+        // cedo demais que falhou. Só decidimos após o /auth/me responder.
+        setCarregando(true);
         try {
           const { usuario } = await api<{ usuario: Usuario }>("/auth/me");
           setPerfil(usuario);

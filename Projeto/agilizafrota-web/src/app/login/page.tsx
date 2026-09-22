@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Ambulance } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { coletar, email as validarEmail, obrigatorio, useErrosCampo } from "@/lib/validacao";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const { erros, setErros, limpar } = useErrosCampo();
 
   // Após autenticar, valida o perfil e redireciona (ou mostra a causa real).
   useEffect(() => {
@@ -60,6 +62,16 @@ export default function LoginPage() {
   async function aoEnviar(e: FormEvent) {
     e.preventDefault();
     setErro(null);
+
+    // Validação de UX antes de bater no Firebase: formato de e-mail e campos
+    // obrigatórios. A checagem real de credenciais é do Firebase.
+    const encontrados = coletar({
+      email: validarEmail(email),
+      senha: obrigatorio(senha, "Senha"),
+    });
+    setErros(encontrados);
+    if (Object.keys(encontrados).length > 0) return;
+
     setEnviando(true);
     try {
       await entrar(email, senha);
@@ -83,25 +95,32 @@ export default function LoginPage() {
 
         <form
           onSubmit={aoEnviar}
+          noValidate
           className="flex flex-col gap-4 rounded-card border border-surface-border bg-surface p-6 shadow-card"
         >
           <Input
             label="E-mail"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              limpar("email");
+            }}
             placeholder="voce@hospital.gov.br"
+            erro={erros.email}
           />
           <Input
             label="Senha"
             type="password"
             autoComplete="current-password"
-            required
             value={senha}
-            onChange={(e) => setSenha(e.target.value)}
+            onChange={(e) => {
+              setSenha(e.target.value);
+              limpar("senha");
+            }}
             placeholder="••••••••"
+            erro={erros.senha}
           />
 
           {erro && (

@@ -14,6 +14,10 @@ import {
   MapPinned,
   BellRing,
   Stethoscope,
+  FileBarChart2,
+  History,
+  Route,
+  ShieldCheck,
 } from "lucide-react";
 
 /**
@@ -24,7 +28,11 @@ const ITENS_CENTRAL = [
   { href: "/chamados", rotulo: "Chamados", icone: PhoneCall },
   { href: "/frota", rotulo: "Frota", icone: MapPinned },
   { href: "/atendimentos", rotulo: "Atendimentos", icone: Stethoscope },
+  { href: "/rotas", rotulo: "Rotas e ETA", icone: Route },
   { href: "/chegadas", rotulo: "Chegadas", icone: BellRing },
+  { href: "/historico", rotulo: "Histórico", icone: History },
+  { href: "/relatorios", rotulo: "Relatórios", icone: FileBarChart2 },
+  { href: "/auditoria", rotulo: "Auditoria", icone: ShieldCheck },
   { href: "/veiculos", rotulo: "Veículos", icone: Truck },
   { href: "/turnos", rotulo: "Turnos", icone: ClipboardList },
   { href: "/unidades", rotulo: "Unidades", icone: Building2 },

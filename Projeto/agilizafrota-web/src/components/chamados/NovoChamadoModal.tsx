@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { Chamado, TipoChamado, PrioridadeChamado } from "@/types/api";
+import { coletar, obrigatorio, tamanho, useErrosCampo } from "@/lib/validacao";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -24,22 +25,35 @@ export function NovoChamadoModal({ aberto, aoFechar, aoCriar }: Props) {
   const [origem, setOrigem] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const { erros, setErros, limpar, limparTudo } = useErrosCampo();
 
-  function limpar() {
+  function resetarFormulario() {
     setTipo("emergencia");
     setPrioridade("auto");
     setNatureza("");
     setDescricao("");
     setOrigem("");
     setErro(null);
+    limparTudo();
   }
 
   async function aoEnviar(e: FormEvent) {
     e.preventDefault();
     setErro(null);
+
+    // Espelha chamadoValidators (corpoChamado).
+    const encontrados = coletar({
+      natureza:
+        obrigatorio(natureza, "Natureza") ?? tamanho(natureza, { min: 3, max: 150, nome: "Natureza" }),
+      origem: tamanho(origem, { max: 500, nome: "Endereço de origem" }),
+      descricao: tamanho(descricao, { max: 2000, nome: "Descrição" }),
+    });
+    setErros(encontrados);
+    if (Object.keys(encontrados).length > 0) return;
+
     setEnviando(true);
     try {
-      const corpo: Record<string, unknown> = { tipo, natureza };
+      const corpo: Record<string, unknown> = { tipo, natureza: natureza.trim() };
       if (prioridade !== "auto") corpo.prioridade = prioridade;
       if (descricao.trim()) corpo.descricao = descricao.trim();
       if (origem.trim()) corpo.origem_endereco = origem.trim();
@@ -49,7 +63,7 @@ export function NovoChamadoModal({ aberto, aoFechar, aoCriar }: Props) {
         body: JSON.stringify(corpo),
       });
       aoCriar(chamado);
-      limpar();
+      resetarFormulario();
       aoFechar();
     } catch (err) {
       setErro(err instanceof ApiError ? err.message : "Não foi possível abrir o chamado.");
@@ -60,7 +74,7 @@ export function NovoChamadoModal({ aberto, aoFechar, aoCriar }: Props) {
 
   return (
     <Modal aberto={aberto} aoFechar={aoFechar} titulo="Novo chamado">
-      <form onSubmit={aoEnviar} className="flex flex-col gap-4">
+      <form onSubmit={aoEnviar} noValidate className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <Select
             label="Tipo"
@@ -88,25 +102,37 @@ export function NovoChamadoModal({ aberto, aoFechar, aoCriar }: Props) {
         <Input
           label="Natureza do atendimento"
           value={natureza}
-          onChange={(e) => setNatureza(e.target.value)}
+          onChange={(e) => {
+            setNatureza(e.target.value);
+            limpar("natureza");
+          }}
           placeholder="Ex.: AVC suspeito, queda com fratura..."
-          required
-          minLength={3}
+          erro={erros.natureza}
         />
 
         <Input
           label="Endereço de origem (opcional)"
           value={origem}
-          onChange={(e) => setOrigem(e.target.value)}
+          onChange={(e) => {
+            setOrigem(e.target.value);
+            limpar("origem");
+          }}
           placeholder="Rua, número, bairro"
+          erro={erros.origem}
         />
 
         <Textarea
           label="Descrição (opcional)"
           value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
+          onChange={(e) => {
+            setDescricao(e.target.value);
+            limpar("descricao");
+          }}
           placeholder="Detalhes adicionais do chamado"
         />
+        {erros.descricao && (
+          <span className="-mt-2 text-sm text-prioridade-critica">{erros.descricao}</span>
+        )}
 
         {erro && (
           <p className="rounded-lg bg-prioridade-critica/10 px-3 py-2 text-sm text-prioridade-critica">

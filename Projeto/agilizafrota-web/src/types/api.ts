@@ -275,3 +275,157 @@ export interface AtendimentoDetalhe {
   metricas_recalculadas: MetricasAtendimento;
   conferencia: { consistente: boolean; problemas: string[] };
 }
+
+// ---------------------------------------------------------------------------
+// Relatórios (RF13)
+// ---------------------------------------------------------------------------
+
+/** Os três relatórios expostos por `GET /relatorios/:tipo`. */
+export type TipoRelatorio = "operacional" | "frota" | "desempenho";
+
+/**
+ * Definição de uma coluna do relatório. O backend é quem decide o conjunto
+ * de colunas de cada relatório e o título de cada uma — a tela apenas as
+ * renderiza na ordem recebida, sem conhecer os campos de antemão.
+ */
+export interface ColunaRelatorio {
+  campo: string;
+  titulo: string;
+}
+
+/** Uma linha do relatório: dicionário indexado pelos `campo` das colunas. */
+export type LinhaRelatorio = Record<string, string | number | boolean | null>;
+
+/**
+ * Resposta de `GET /relatorios/:tipo?formato=json`.
+ *
+ * Os formatos `csv` e `html` não passam por aqui: são baixados como arquivo
+ * (ver `baixarRelatorio` na tela), não desserializados como JSON.
+ */
+export interface RelatorioResposta {
+  relatorio: string;
+  periodo: { desde?: string | null; ate?: string | null };
+  resumo: Record<string, string | number>;
+  total: number;
+  colunas: ColunaRelatorio[];
+  linhas: LinhaRelatorio[];
+}
+
+// ---------------------------------------------------------------------------
+// Histórico (RF12)
+// ---------------------------------------------------------------------------
+
+export type TipoEventoHistorico = "turno" | "atendimento" | "chamado";
+
+/**
+ * Um evento da linha do tempo consolidada de `GET /historico`.
+ *
+ * O backend une turnos, atendimentos e chamados num formato comum, então
+ * `valor_a`/`valor_b` mudam de significado conforme `tipo`:
+ *   - turno       → km inicial / km final
+ *   - atendimento → distância (km) / tempo total (min)
+ *   - chamado     → ambos nulos
+ * `descricao` traz a natureza (atendimento e chamado) e é nula no turno.
+ */
+export interface EventoHistorico {
+  tipo: TipoEventoHistorico;
+  id: string;
+  ocorrido_em: string;
+  status: string;
+  placa: string | null;
+  pessoa: string | null;
+  descricao: string | null;
+  valor_a: number | null;
+  valor_b: number | null;
+}
+
+/**
+ * Resposta de `GET /historico`. Atenção: `total` é a contagem da PÁGINA
+ * atual (rows retornadas), não o total geral — a paginação se orienta por
+ * "veio página cheia? então pode haver mais".
+ */
+export interface HistoricoResposta {
+  total: number;
+  eventos: EventoHistorico[];
+}
+
+// ---------------------------------------------------------------------------
+// Auditoria (RF14)
+// ---------------------------------------------------------------------------
+
+/**
+ * Um registro do log de auditoria (`GET /auditoria`). Append-only: não há
+ * endpoint de edição nem exclusão — alterar o rastro derrotaria a auditoria.
+ * `dados_antes`/`dados_depois` são JSONB (formato livre), exibidos como texto.
+ */
+export interface RegistroAuditoria {
+  id: string;
+  usuario_id: string | null;
+  usuario_email: string | null;
+  papel: string | null;
+  acao: string;
+  entidade: string | null;
+  entidade_id: string | null;
+  metodo: string | null;
+  rota: string | null;
+  status_http: number | null;
+  sucesso: boolean;
+  dados_antes: unknown;
+  dados_depois: unknown;
+  ip: string | null;
+  user_agent: string | null;
+  duracao_ms: number | null;
+  criado_em: string;
+}
+
+/**
+ * Resposta de `GET /auditoria`. Como no histórico, `total` é a contagem da
+ * PÁGINA atual, não o total geral.
+ */
+export interface AuditoriaResposta {
+  total: number;
+  registros: RegistroAuditoria[];
+}
+
+// ---------------------------------------------------------------------------
+// Rota e tempo estimado de chegada (RF16 / RF17)
+// ---------------------------------------------------------------------------
+
+export type FonteRota = "google" | "estimativa";
+
+export interface PassoRota {
+  instrucao: string;
+  distancia_km: number;
+  duracao_min: number;
+}
+
+/**
+ * Rota/ETA calculada pelo backend (`services/mapas`). A `fonte` diz o grau de
+ * confiança: "google" traz geometria real (`polyline` codificada) e passos;
+ * "estimativa" é o fallback local (Haversine × sinuosidade ÷ velocidade), sem
+ * geometria — nesse caso só há origem e destino para desenhar.
+ */
+export interface Rota {
+  distancia_km: number;
+  duracao_min: number;
+  fonte: FonteRota;
+  cache?: boolean;
+  // Somente na estimativa local:
+  distancia_linha_reta_km?: number;
+  velocidade_media_kmh?: number;
+  observacao?: string;
+  degradado?: boolean;
+  // Somente no provedor externo (Google Directions):
+  resumo?: string | null;
+  polyline?: string | null;
+  passos?: PassoRota[];
+}
+
+/** Resposta de `GET /atendimentos/:id/rota`. */
+export interface RotaAtendimentoResposta {
+  atendimento_id: string;
+  etapa: "ate_ocorrencia" | "ate_destino";
+  destino: { nome: string | null; lat: number; lng: number };
+  origem: { lat: number; lng: number; registrado_em: string };
+  rota: Rota | null;
+}

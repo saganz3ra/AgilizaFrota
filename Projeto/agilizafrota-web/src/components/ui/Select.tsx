@@ -8,11 +8,12 @@ interface Opcao {
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
   opcoes: Opcao[];
+  erro?: string;
 }
 
-/** Campo de seleção rotulado. */
+/** Campo de seleção rotulado, com estado de erro acessível (como o Input). */
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, opcoes, id, className = "", ...props }, ref) => {
+  ({ label, opcoes, erro, id, className = "", ...props }, ref) => {
     const gerado = useId();
     const selectId = id || gerado;
     return (
@@ -23,8 +24,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
+          aria-invalid={erro ? true : undefined}
           className={[
-            "h-11 rounded-lg border border-surface-border bg-surface px-3 text-sm text-content",
+            "h-11 rounded-lg border bg-surface px-3 text-sm text-content",
+            erro ? "border-prioridade-critica" : "border-surface-border",
             className,
           ].join(" ")}
           {...props}
@@ -35,6 +38,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
+        {erro && <span className="text-sm text-prioridade-critica">{erro}</span>}
       </div>
     );
   },

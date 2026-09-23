@@ -75,6 +75,13 @@ class ApiCliente {
             body: jsonEncode(corpo ?? const {}),
           ));
 
+  Future<dynamic> delete(String caminho, [Map<String, dynamic>? corpo]) =>
+      _executar(() async => _http.delete(
+            _url(caminho),
+            headers: await _cabecalhos(),
+            body: jsonEncode(corpo ?? const {}),
+          ));
+
   /// Envolve a chamada: aplica timeout, converte falhas de rede e
   /// interpreta a resposta.
   Future<dynamic> _executar(Future<http.Response> Function() requisicao) async {

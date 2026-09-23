@@ -11,6 +11,10 @@
     <!-- Detectar se ha rede: define se o registro vai direto ou para a fila offline (RNF03) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+    <!-- Notificacoes push (FCM): avisar o motorista de um novo acionamento (RF07).
+         Exigida a partir do Android 13 para exibir notificacoes. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <!-- Rastreamento da frota em tempo real (RF11). A posicao so e coletada
          com turno aberto e com consentimento registrado (RNF02). -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

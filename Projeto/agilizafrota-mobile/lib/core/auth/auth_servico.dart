@@ -128,6 +128,41 @@ class AuthServico extends ChangeNotifier {
     await _firebase.signOut();
   }
 
+  /// Troca a senha do usuário logado (RNF01).
+  ///
+  /// Exige a senha ATUAL porque o Firebase pede reautenticação recente antes de
+  /// alterar a senha — proteção contra alguém trocar a senha num aparelho
+  /// deixado desbloqueado. Lança uma mensagem pronta (String) em caso de erro.
+  Future<void> trocarSenha({
+    required String atual,
+    required String nova,
+  }) async {
+    final conta = _firebase.currentUser;
+    if (conta == null || conta.email == null) {
+      throw 'Sessão inválida. Entre novamente.';
+    }
+    try {
+      final credencial = EmailAuthProvider.credential(
+        email: conta.email!,
+        password: atual,
+      );
+      await conta.reauthenticateWithCredential(credencial);
+      await conta.updatePassword(nova);
+    } on FirebaseAuthException catch (e) {
+      throw switch (e.code) {
+        'wrong-password' ||
+        'invalid-credential' =>
+          'A senha atual está incorreta.',
+        'weak-password' => 'A nova senha é muito fraca (mínimo 6 caracteres).',
+        'requires-recent-login' =>
+          'Por segurança, entre novamente e repita a troca.',
+        'too-many-requests' => 'Muitas tentativas. Aguarde alguns minutos.',
+        'network-request-failed' => 'Sem conexão com a internet.',
+        _ => 'Não foi possível alterar a senha (${e.code}).',
+      };
+    }
+  }
+
   void _aoExpirarSessao() {
     _firebase.signOut();
   }

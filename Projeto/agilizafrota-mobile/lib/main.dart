@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/auth/auth_servico.dart';
+import 'core/notificacoes/notificacao_push_servico.dart';
 import 'core/offline/sincronizador.dart';
 import 'core/tema/cores.dart';
 import 'core/tema/tema.dart';
+import 'core/tema/tema_controller.dart';
 import 'core/widgets/aviso.dart';
 import 'core/widgets/carregando.dart';
 import 'features/login/login_pagina.dart';
@@ -76,12 +78,37 @@ class AgilizaFrotaApp extends StatelessWidget {
             sincronizador: ctx.read<Sincronizador>(),
           ),
         ),
+        ChangeNotifierProvider(create: (_) => TemaController()),
+        // Push (FCM). Não é ChangeNotifier: só registra o token e escuta o
+        // FCM; a UI que precisa de estado (o toggle) guarda o seu localmente.
+        Provider(
+          create: (ctx) =>
+              NotificacaoPushServico(ctx.read<AuthServico>().api),
+        ),
       ],
-      child: MaterialApp(
-        title: 'Agiliza Frota',
-        theme: TemaApp.claro,
-        debugShowCheckedModeBanner: false,
-        home: const _Raiz(),
+      // Consumer (e nao context.watch aqui) porque o TemaController e criado
+      // NESTE MultiProvider: so um contexto abaixo dele consegue le-lo. Ao
+      // trocar o tema, apenas o MaterialApp reconstroi.
+      child: Consumer<TemaController>(
+        builder: (_, tema, _) => MaterialApp(
+          title: 'Agiliza Frota',
+          theme: TemaApp.claro,
+          darkTheme: TemaApp.escuro,
+          themeMode: tema.modo,
+          // Permite ao serviço de push mostrar SnackBars de qualquer tela.
+          scaffoldMessengerKey: chaveMensageiro,
+          debugShowCheckedModeBanner: false,
+          // Escala de fonte escolhida em Configurações. Aplicada aqui, no topo,
+          // reescala TODO o texto do app de uma vez (acessibilidade, RNF04).
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(textScaler: TextScaler.linear(tema.escalaFonte)),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: const _Raiz(),
+        ),
       ),
     );
   }
@@ -97,8 +124,9 @@ class _Raiz extends StatelessWidget {
 
     switch (situacao) {
       case SituacaoAuth.verificando:
+        // Sem backgroundColor fixo: usa o fundo do tema ativo, para a tela de
+        // carregamento nao "piscar" branca quando o app esta no escuro.
         return const Scaffold(
-          backgroundColor: Cores.superficie,
           body: Carregando(rotulo: 'Agiliza Frota'),
         );
       case SituacaoAuth.deslogado:

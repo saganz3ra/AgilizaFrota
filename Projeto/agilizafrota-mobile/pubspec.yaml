@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^4.14.0
   firebase_auth: ^6.6.1
+  # Notificacoes push (FCM): avisa o motorista de um novo acionamento mesmo
+  # com o app em segundo plano. Se o `flutter pub get` reclamar da versao,
+  # rode `flutter pub add firebase_messaging` para casar com o firebase_core.
+  firebase_messaging: ^16.0.0
   http: ^1.6.0
   provider: ^6.1.5+1
   image_picker: ^1.2.3
@@ -45,6 +49,9 @@ dependencies:
   sqflite: ^2.4.3
   path: ^1.9.1
   connectivity_plus: ^7.3.1
+  # Preferencia de interface (tema claro/escuro) por aparelho. Par chave/valor
+  # simples: shared_preferences e a ferramenta padrao para isso no Flutter.
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:

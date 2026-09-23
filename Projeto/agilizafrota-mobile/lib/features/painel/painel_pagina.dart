@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/api_excecao.dart';
 import '../../core/auth/auth_servico.dart';
+import '../../core/notificacoes/notificacao_push_servico.dart';
 import '../../core/offline/sincronizador.dart';
 import '../../core/tema/cores.dart';
 import '../../core/tema/tema.dart';
 import '../../core/widgets/aviso.dart';
 import '../../core/widgets/carregando.dart';
 import '../atendimento/atendimento_pagina.dart';
+import '../configuracoes/configuracoes_pagina.dart';
 import '../rastreamento/fila_pagina.dart';
 import '../rastreamento/rastreamento_servico.dart';
 import '../turno/encerrar_turno_pagina.dart';
@@ -37,6 +39,11 @@ class _PainelPaginaState extends State<PainelPagina> {
   void initState() {
     super.initState();
     _carregar();
+    // Já autenticado como motorista: registra o push (permissão + token).
+    // Depois do primeiro frame, para o contexto já estar montado.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<NotificacaoPushServico>().iniciar();
+    });
   }
 
   Future<void> _carregar() async {
@@ -74,6 +81,16 @@ class _PainelPaginaState extends State<PainelPagina> {
         title: Text('Ola, $nome'),
         actions: [
           _BotaoFila(aoTocar: _abrirFila),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Configurações',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ConfiguracoesPagina(),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Atualizar',
@@ -308,21 +325,26 @@ class _CartaoProximaAcao extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cores que dependem do tema saem do ColorScheme (onSurface = texto
+    // principal, onSurfaceVariant = texto de apoio); assim adaptam sozinhas
+    // ao claro/escuro. As cores de marca abaixo (Cores.marca) sao fixas.
+    final cs = Theme.of(context).colorScheme;
+
     if (acao.ehEspera) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const Icon(Icons.hourglass_empty,
-                  size: 44, color: Cores.conteudoSuave),
+              Icon(Icons.hourglass_empty,
+                  size: 44, color: cs.onSurfaceVariant),
               const SizedBox(height: 14),
               Text(
                 acao.rotulo,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w600,
-                  color: Cores.conteudo,
+                  color: cs.onSurface,
                 ),
               ),
               if (acao.dica != null) ...[
@@ -330,9 +352,9 @@ class _CartaoProximaAcao extends StatelessWidget {
                 Text(
                   acao.dica!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Cores.conteudoSuave,
+                    color: cs.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -406,6 +428,8 @@ class _CartaoChamado extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -429,10 +453,10 @@ class _CartaoChamado extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               chamado.natureza,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w600,
-                color: Cores.conteudo,
+                color: cs.onSurface,
               ),
             ),
             if (chamado.origemEndereco != null) ...[
@@ -466,6 +490,8 @@ class _CartaoAtendimento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -488,10 +514,10 @@ class _CartaoAtendimento extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               atendimento.chamado.natureza,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w600,
-                color: Cores.conteudo,
+                color: cs.onSurface,
               ),
             ),
             if (atendimento.chamado.destinoNome != null) ...[
@@ -523,6 +549,8 @@ class _CartaoVeiculo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -531,24 +559,24 @@ class _CartaoVeiculo extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.directions_car_outlined,
-                    color: Cores.conteudoSuave),
+                Icon(Icons.directions_car_outlined,
+                    color: cs.onSurfaceVariant),
                 const SizedBox(width: 10),
                 Text(
                   veiculo.placa,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
-                    color: Cores.conteudo,
+                    color: cs.onSurface,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     veiculo.modelo,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Cores.conteudoSuave,
+                      color: cs.onSurfaceVariant,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -633,21 +661,23 @@ class _Linha extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icone, size: 20, color: Cores.conteudoSuave),
+        Icon(icone, size: 20, color: cs.onSurfaceVariant),
         const SizedBox(width: 10),
         Text(
           '$rotulo: ',
-          style: const TextStyle(fontSize: 15, color: Cores.conteudoSuave),
+          style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant),
         ),
         Expanded(
           child: Text(
             valor,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Cores.conteudo,
+              color: cs.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),

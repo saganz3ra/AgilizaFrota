@@ -10,4 +10,8 @@ const router = Router();
 
 router.get('/painel', autenticar, autorizarPapel('motorista'), ctrl.painel);
 
+// Registro/remocao do token de push (notificacoes FCM) deste aparelho.
+router.post('/dispositivo', autenticar, autorizarPapel('motorista'), ctrl.registrarDispositivo);
+router.delete('/dispositivo', autenticar, autorizarPapel('motorista'), ctrl.removerDispositivo);
+
 module.exports = router;

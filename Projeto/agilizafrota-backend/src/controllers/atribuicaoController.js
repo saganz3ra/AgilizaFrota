@@ -165,6 +165,14 @@ const atribuir = asyncHandler(async (req, res) => {
     await client.query('COMMIT');
 
     eventos.publicar('chamado:atualizado', chamadoAtualizado.rows[0]);
+
+    // Push ao motorista acionado (RF07 + RF06 no app). Best-effort e fora da
+    // transacao: uma falha de notificacao nao pode desfazer a atribuicao nem
+    // atrasar a resposta.
+    require('../services/notificacoesPush')
+      .notificarNovaAtribuicao(motoristaFinal, chamadoAtualizado.rows[0])
+      .catch(() => {});
+
     res.status(201).json({
       atribuicao: nova.rows[0],
       chamado: chamadoAtualizado.rows[0],

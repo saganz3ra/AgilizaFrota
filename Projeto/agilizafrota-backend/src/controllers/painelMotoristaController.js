@@ -10,7 +10,9 @@
  */
 const { query } = require('../config/db');
 const { asyncHandler } = require('../utils/asyncHandler');
+const { AppError } = require('../utils/AppError');
 const { ITENS_CHECKLIST } = require('../constants/checklistItens');
+const push = require('../services/notificacoesPush');
 
 /** Decide a proxima acao a partir do estado atual. */
 function proximaAcao({ turno, atendimento, atribuicao, veiculo }) {
@@ -141,4 +143,23 @@ const painel = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { painel, proximaAcao };
+// POST /api/motorista/dispositivo - registra o token de push deste aparelho.
+const registrarDispositivo = asyncHandler(async (req, res) => {
+  const { token, plataforma } = req.body || {};
+  if (typeof token !== 'string' || token.trim().length < 10) {
+    throw new AppError(400, 'Token de dispositivo invalido.', 'TOKEN_INVALIDO');
+  }
+  await push.registrarDispositivo(req.usuario.id, token.trim(), plataforma);
+  res.status(204).end();
+});
+
+// DELETE /api/motorista/dispositivo - remove o token (ao desativar ou sair).
+const removerDispositivo = asyncHandler(async (req, res) => {
+  const { token } = req.body || {};
+  if (typeof token === 'string' && token.trim()) {
+    await push.removerDispositivo(token.trim());
+  }
+  res.status(204).end();
+});
+
+module.exports = { painel, proximaAcao, registrarDispositivo, removerDispositivo };

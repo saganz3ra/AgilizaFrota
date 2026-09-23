@@ -54,9 +54,16 @@ export default function LoginPage() {
       void sair();
       return;
     }
-    // Cada perfil entra direto no que usa: a recepção não tem nada a
-    // fazer no painel de gestão da Central.
-    router.replace(perfil?.papel === "recepcionista" ? "/chegadas" : "/dashboard");
+    // Cada perfil entra direto no que usa: a recepção não tem nada a fazer no
+    // painel de gestão da Central (vai sempre para Chegadas). O operador da
+    // Central cai na tela inicial que escolheu em Configurações (padrão: Painel).
+    let inicial = "/dashboard";
+    try {
+      inicial = localStorage.getItem("telaInicial") || "/dashboard";
+    } catch {
+      /* localStorage indisponível: usa o padrão */
+    }
+    router.replace(perfil?.papel === "recepcionista" ? "/chegadas" : inicial);
   }, [carregando, usuarioFirebase, perfil, erroPerfil, router, sair]);
 
   async function aoEnviar(e: FormEvent) {

@@ -3,36 +3,116 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   Design tokens - Agiliza Frota (clinico institucional)
-   Azul/branco, alto contraste, legibilidade para uso sob pressao.
+   Design tokens - Agiliza Frota
+   Verde (acao) + azul-marinho (moldura) + branco (superficies) + cinza claro.
+   Mesmos NOMES de token de antes: mudar os valores aqui recolore todo o app,
+   sem tocar nas telas. Alto contraste, legibilidade para uso sob pressao.
    ========================================================================== */
 :root {
-  /* Marca */
-  --brand: #1256b8;          /* azul institucional */
-  --brand-dark: #0e458f;
-  --brand-light: #e8f0fc;
+  /* Faz o navegador pintar controles nativos (barra de rolagem, seletor de
+     data, autofill) no esquema certo; complementa os tokens abaixo. */
+  color-scheme: light;
+
+  /* Tamanho da fonte raiz. Como o Tailwind usa rem, mudar isto reescala TODA a
+     interface (texto e espacamentos). Densidade e Tamanho da fonte sao os dois
+     controles que alimentam esse tamanho:
+       - densidade  -> --dens  (base: confortavel 16px, compacto 14.5px)
+       - fonte      -> --fonte (ajuste de acessibilidade somado a base) */
+  --dens: 16px;
+  --fonte: 0px;
+
+  /* Marca = verde (acoes primarias, estado ativo, foco) */
+  --brand: #16a34a;
+  --brand-dark: #15803d;
+  --brand-light: #e7f6ec;
   --brand-contrast: #ffffff;
+
+  /* Marinho = moldura (sidebar, cabecalhos) */
+  --marinho: #0f2b46;
+  --marinho-escuro: #0a2036;
 
   /* Superficies */
   --surface: #ffffff;
-  --surface-muted: #f4f6fa;
-  --surface-border: #dce3ec;
+  --surface-muted: #f4f7fa;      /* fundo cinza claro */
+  --surface-border: #e6ebf1;
 
   /* Conteudo (texto) */
-  --content: #101828;        /* quase preto, alto contraste */
-  --content-muted: #5b6472;
+  --content: #0f2233;            /* quase preto azulado, alto contraste */
+  --content-muted: #64748b;
   --content-inverse: #ffffff;
 
-  /* Estados de veiculo */
-  --status-disponivel: #157347;
-  --status-uso: #1256b8;
-  --status-manutencao: #b45309;
+  /* Estados de veiculo (verde/azul/ambar, semanticamente distintos) */
+  --status-disponivel: #16a34a;
+  --status-uso: #2563eb;
+  --status-manutencao: #d97706;
 
-  /* Prioridades de chamado */
-  --prio-critica: #b42318;
-  --prio-alta: #c4560c;
-  --prio-media: #1256b8;
-  --prio-baixa: #5b6472;
+  /* Prioridades de chamado (tom de TEXTO / tinta; escurece no claro, clareia
+     no escuro para continuar legivel). */
+  --prio-critica: #dc2626;
+  --prio-alta: #ea580c;
+  --prio-media: #2563eb;
+  --prio-baixa: #64748b;
+
+  /* Prioridades - versao SOLIDA (fundo do bloco), com texto branco por cima.
+     Constantes nos dois temas de proposito: "critico" tem de ser o mesmo
+     vermelho no claro e no escuro, senao o operador reaprende o codigo de
+     cores ao trocar de tema. Por isso NAO sao redefinidas em html.dark. */
+  --prio-critica-solida: #dc2626;
+  --prio-alta-solida: #ea580c;
+  --prio-media-solida: #2563eb;
+  --prio-baixa-solida: #64748b;
+
+  /* Acentos dos cartoes do painel (KPIs). Uma cor por indicador, para o
+     operador distinguir cada numero de relance. Constantes nos dois temas
+     (nao redefinidas em html.dark): sao blocos solidos com icone branco, e
+     mudar a cor por tema so confundiria a leitura. */
+  --acento-chamados: #2563eb;   /* azul  - demanda/atividade em tempo real */
+  --acento-veiculos: #16a34a;   /* verde - disponivel/pronto */
+  --acento-turnos: #7c3aed;     /* roxo  - jornadas em andamento */
+  --acento-frota: #b45309;      /* ambar - carga operacional/manutencao */
+}
+
+/* ==========================================================================
+   Modo escuro
+   So os VALORES dos tokens mudam; os nomes sao os mesmos do :root. Por isso
+   nenhuma tela precisa de classe `dark:` - trocar a classe `.dark` no <html>
+   (feito pelo ToggleTema e pelo script anti-flash no layout) recolore o app
+   inteiro. Ativado por classe (darkMode: "class" no tailwind), nao por
+   prefers-color-scheme, porque o usuario deve poder ESCOLHER, sobrepondo o SO.
+
+   Ajustes de contraste pensados para o escuro:
+    - verde da marca mais claro (#22c55e), porque #16a34a fica apagado sobre
+      fundo escuro e perde contraste com texto branco;
+    - superficies em azul-ardosia (nao preto puro), que cansa menos a vista e
+      mantem a identidade azul/verde;
+    - estados e prioridades em tons mais vivos, para nao "sumirem" no fundo. */
+html.dark {
+  color-scheme: dark;
+
+  --brand: #22c55e;
+  --brand-dark: #16a34a;
+  --brand-light: #10281b;        /* verde bem escuro, base de "pills" */
+  --brand-contrast: #04140b;     /* texto sobre o verde claro, alto contraste */
+
+  --marinho: #0b1f33;            /* moldura ainda mais escura que o fundo */
+  --marinho-escuro: #071726;
+
+  --surface: #0f172a;            /* cards / cabecalhos */
+  --surface-muted: #0b1220;      /* fundo da pagina */
+  --surface-border: #1e293b;
+
+  --content: #e2e8f0;            /* texto principal, quase branco */
+  --content-muted: #94a3b8;
+  --content-inverse: #0b1220;    /* texto sobre superficie clara (raro no escuro) */
+
+  --status-disponivel: #22c55e;
+  --status-uso: #3b82f6;
+  --status-manutencao: #f59e0b;
+
+  --prio-critica: #f87171;
+  --prio-alta: #fb923c;
+  --prio-media: #60a5fa;
+  --prio-baixa: #94a3b8;
 }
 
 * {
@@ -43,6 +123,36 @@ html,
 body {
   padding: 0;
   margin: 0;
+}
+
+/* ==========================================================================
+   Aparencia (tamanho da fonte e densidade)
+   O tamanho da fonte raiz vem de densidade + ajuste de fonte. Os atributos
+   data-* sao aplicados no <html> pelo script anti-flash (antes da primeira
+   pintura) e pelo contexto de preferencias. Default (sem atributo) = 16px.
+   ========================================================================== */
+html {
+  font-size: calc(var(--dens) + var(--fonte));
+}
+html[data-densidade="compacto"] {
+  --dens: 14.5px;
+}
+html[data-fonte="pequeno"] {
+  --fonte: -1px;
+}
+html[data-fonte="grande"] {
+  --fonte: 2px;
+}
+
+/* Reduzir animacoes: acessibilidade (vestibular) e conforto. Zera transicoes
+   e animacoes sem quebrar layout. */
+html[data-animacoes="reduzidas"] *,
+html[data-animacoes="reduzidas"] *::before,
+html[data-animacoes="reduzidas"] *::after {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
 }
 
 body {

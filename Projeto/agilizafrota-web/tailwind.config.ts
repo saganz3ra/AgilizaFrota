@@ -1,10 +1,16 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design system - Agiliza Frota (clinico institucional).
+ * Design system - Agiliza Frota.
+ * Verde (acao) + azul-marinho (moldura) + branco + cinza claro.
  * As cores usam variaveis CSS definidas em globals.css para facilitar temas.
  */
 const config: Config = {
+  // Modo escuro por CLASSE (.dark no <html>), nao por prefers-color-scheme:
+  // o usuario escolhe o tema e a escolha sobrepoe o sistema. A recoloracao
+  // vem dos tokens em globals.css (html.dark), entao nao usamos variantes
+  // `dark:` espalhadas pelas telas.
+  darkMode: "class",
   content: [
     "./src/app/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}",
@@ -12,12 +18,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Marca (azul institucional) e superficies.
+        // Marca (verde) e superficies.
         brand: {
           DEFAULT: "var(--brand)",
           dark: "var(--brand-dark)",
           light: "var(--brand-light)",
           contrast: "var(--brand-contrast)",
+        },
+        // Moldura institucional (sidebar, cabecalhos).
+        marinho: {
+          DEFAULT: "var(--marinho)",
+          escuro: "var(--marinho-escuro)",
         },
         surface: {
           DEFAULT: "var(--surface)",
@@ -40,13 +51,26 @@ const config: Config = {
           alta: "var(--prio-alta)",
           media: "var(--prio-media)",
           baixa: "var(--prio-baixa)",
+          // Versao solida (fundo do bloco de prioridade).
+          "critica-solida": "var(--prio-critica-solida)",
+          "alta-solida": "var(--prio-alta-solida)",
+          "media-solida": "var(--prio-media-solida)",
+          "baixa-solida": "var(--prio-baixa-solida)",
+        },
+        // Acentos dos KPIs do painel (uma cor por indicador).
+        acento: {
+          chamados: "var(--acento-chamados)",
+          veiculos: "var(--acento-veiculos)",
+          turnos: "var(--acento-turnos)",
+          frota: "var(--acento-frota)",
         },
       },
       borderRadius: {
-        card: "12px",
+        card: "14px",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.10)",
+        // Sombra suave, elevacao discreta (estilo dos cards da referencia).
+        card: "0 1px 2px rgba(15, 35, 51, 0.04), 0 6px 16px rgba(15, 35, 51, 0.06)",
       },
       fontFamily: {
         sans: [

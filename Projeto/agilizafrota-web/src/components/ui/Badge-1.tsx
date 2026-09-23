@@ -18,10 +18,9 @@ const estilos: Record<Tom, string> = {
   // Prioridades: bloco solido (fundo cheio) + texto branco, em maiuscula,
   // para maxima legibilidade a distancia. As cores solidas sao constantes
   // nos dois temas (ver globals.css).
-  //
-  // min-w + justify-center: todos os blocos ficam com a MESMA largura,
-  // independentemente do texto ("CRITICA" x "ALTA"). Assim o que vem depois
-  // do bloco (o titulo do chamado) alinha na mesma coluna em todas as linhas.
+  // w-20 + justify-center: todos os blocos ficam com a MESMA largura,
+  // independentemente do texto ("CRITICA" x "ALTA"), para o titulo que vem
+  // depois alinhar na mesma coluna em todas as linhas.
   critica: "w-20 justify-center rounded-md bg-prioridade-critica-solida text-white uppercase tracking-wide",
   alta: "w-20 justify-center rounded-md bg-prioridade-alta-solida text-white uppercase tracking-wide",
   media: "w-20 justify-center rounded-md bg-prioridade-media-solida text-white uppercase tracking-wide",

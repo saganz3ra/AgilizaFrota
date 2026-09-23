@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PhoneCall, Plus, Radio, Bell, XCircle, Ambulance } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useChamadosStream, EventoChamado } from "@/lib/useChamadosStream";
-import { tocarAlerta } from "@/lib/som";
 import {
   Chamado,
   PrioridadeChamado,
@@ -95,7 +94,8 @@ export default function ChamadosPage() {
       return ordenar(lista);
     });
     if (novo) {
-      tocarAlerta();
+      // O som e a notificação ficam no assinante global (OuvinteChamados),
+      // para o alerta valer em qualquer tela e não tocar em dobro aqui.
       setDestaque(chamado.id);
       setUltimoAlerta(chamado);
       window.setTimeout(() => setDestaque((d) => (d === chamado.id ? null : d)), 5000);
@@ -217,7 +217,7 @@ export default function ChamadosPage() {
                         <Ambulance size={16} />
                         {c.status === "aberto" ? "Acionar" : "Ver acionamento"}
                       </Button>
-                      <Button variante="ghost" tamanho="sm" onClick={() => cancelar(c.id)}>
+                      <Button variante="perigoGhost" tamanho="sm" onClick={() => cancelar(c.id)}>
                         <XCircle size={16} />
                         Cancelar
                       </Button>

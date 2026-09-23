@@ -90,10 +90,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icone={<PhoneCall />} rotulo="Chamados abertos" valor={dados?.chamadosAbertos.length ?? 0} destaque />
-        <StatCard icone={<Truck />} rotulo="Veículos disponíveis" valor={disponiveis} />
-        <StatCard icone={<ClipboardList />} rotulo="Turnos ativos" valor={dados?.turnosAbertos.length ?? 0} />
-        <StatCard icone={<Truck />} rotulo="Frota (uso / manutenção)" valor={`${emUso} / ${manutencao}`} />
+        <StatCard cor="chamados" icone={<PhoneCall />} rotulo="Chamados abertos" valor={dados?.chamadosAbertos.length ?? 0} />
+        <StatCard cor="veiculos" icone={<Truck />} rotulo="Veículos disponíveis" valor={disponiveis} />
+        <StatCard cor="turnos" icone={<ClipboardList />} rotulo="Turnos ativos" valor={dados?.turnosAbertos.length ?? 0} />
+        <StatCard cor="frota" icone={<Truck />} rotulo="Frota (uso / manutenção)" valor={`${emUso} / ${manutencao}`} />
       </div>
 
       <Card>
@@ -124,24 +124,36 @@ export default function DashboardPage() {
   );
 }
 
+/** Uma cor por indicador, para o operador distinguir cada KPI de relance. */
+type CorKpi = "chamados" | "veiculos" | "turnos" | "frota";
+
+const FUNDO_KPI: Record<CorKpi, string> = {
+  chamados: "bg-acento-chamados",
+  veiculos: "bg-acento-veiculos",
+  turnos: "bg-acento-turnos",
+  frota: "bg-acento-frota",
+};
+
 function StatCard({
+  cor,
   icone,
   rotulo,
   valor,
-  destaque,
 }: {
+  cor: CorKpi;
   icone: React.ReactNode;
   rotulo: string;
   valor: number | string;
-  destaque?: boolean;
 }) {
   return (
-    <Card className={destaque ? "border-brand/30" : ""}>
+    <Card>
       <CardBody className="flex items-center gap-4">
         <span
           className={[
-            "flex h-11 w-11 items-center justify-center rounded-lg",
-            destaque ? "bg-brand text-brand-contrast" : "bg-brand-light text-brand",
+            // Bloco solido + icone branco: mesma linguagem dos blocos de
+            // prioridade, e garante leitura nos dois temas.
+            "flex h-11 w-11 items-center justify-center rounded-lg text-white",
+            FUNDO_KPI[cor],
           ].join(" ")}
         >
           {icone}

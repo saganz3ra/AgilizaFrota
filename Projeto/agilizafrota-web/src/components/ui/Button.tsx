@@ -1,6 +1,12 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
-type Variante = "primario" | "secundario" | "ghost" | "perigo";
+type Variante =
+  | "primario"
+  | "secundario"
+  | "ghost"
+  | "perigo"
+  | "perigoGhost"
+  | "neutroGhost";
 type Tamanho = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +22,15 @@ const estilosVariante: Record<Variante, string> = {
     "bg-surface text-content border border-surface-border hover:bg-surface-muted",
   ghost: "bg-transparent text-brand hover:bg-brand-light",
   perigo: "bg-prioridade-critica text-white hover:opacity-90",
+  // Acao destrutiva de baixo peso (ex.: "Cancelar", "Desativar" numa linha):
+  // vermelho, sem fundo cheio, para nao competir com a acao primaria. O
+  // vermelho vem do token de prioridade (clareia no escuro p/ continuar legivel).
+  perigoGhost:
+    "bg-transparent text-prioridade-critica hover:bg-prioridade-critica/10",
+  // Acao neutra de baixo peso (ex.: "Editar"): usa a cor de conteudo, que e
+  // quase-preta no tema claro e quase-branca no escuro - um so token cobre
+  // os dois temas, sem precisar de classe `dark:`.
+  neutroGhost: "bg-transparent text-content hover:bg-surface-muted",
 };
 
 const estilosTamanho: Record<Tamanho, string> = {

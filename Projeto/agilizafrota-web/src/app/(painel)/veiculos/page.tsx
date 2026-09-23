@@ -170,12 +170,12 @@ export default function VeiculosPage() {
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-1">
-                          <Button variante="ghost" tamanho="sm" onClick={() => abrirEdicao(v)}>
+                          <Button variante="neutroGhost" tamanho="sm" onClick={() => abrirEdicao(v)}>
                             <Pencil size={16} />
                             Editar
                           </Button>
                           {v.ativo && (
-                            <Button variante="ghost" tamanho="sm" onClick={() => desativar(v.id)}>
+                            <Button variante="perigoGhost" tamanho="sm" onClick={() => desativar(v.id)}>
                               <Power size={16} />
                               Desativar
                             </Button>

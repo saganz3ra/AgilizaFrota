@@ -162,11 +162,17 @@ export default function UsuariosPage() {
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-1">
-                          <Button variante="ghost" tamanho="sm" onClick={() => abrirEdicao(u)}>
+                          <Button variante="neutroGhost" tamanho="sm" onClick={() => abrirEdicao(u)}>
                             <Pencil size={16} />
                             Editar
                           </Button>
-                          <Button variante="ghost" tamanho="sm" onClick={() => alternarAtivo(u)}>
+                          {/* Vermelho so quando a acao e destrutiva (Desativar);
+                              ao Reativar (Ativar) fica neutro, pois nao e perigo. */}
+                          <Button
+                            variante={u.ativo ? "perigoGhost" : "neutroGhost"}
+                            tamanho="sm"
+                            onClick={() => alternarAtivo(u)}
+                          >
                             {u.ativo ? <PowerOff size={16} /> : <Power size={16} />}
                             {u.ativo ? "Desativar" : "Ativar"}
                           </Button>

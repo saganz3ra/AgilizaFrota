@@ -281,10 +281,13 @@ class _IniciarTurnoPaginaState extends State<IniciarTurnoPagina> {
         // ---------- Foto ----------
         const _Secao(numero: 3, titulo: 'Foto do painel'),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Fotografe o painel com o hodometro legivel. '
           'A imagem comprova a quilometragem informada.',
-          style: TextStyle(fontSize: 14, color: Cores.conteudoSuave),
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 12),
         _AreaFoto(
@@ -365,10 +368,10 @@ class _Secao extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           titulo,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Cores.conteudo,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
@@ -396,9 +399,12 @@ class _AreaFoto extends StatelessWidget {
             child: Container(
               height: 150,
               decoration: BoxDecoration(
-                color: Cores.superficie,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Cores.borda, width: 2),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 2,
+                ),
               ),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -482,10 +488,12 @@ class _ItemChecklistCartao extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Cores.superficie,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: resposta.bloqueiaTurno ? Cores.prioridadeCritica : Cores.borda,
+          color: resposta.bloqueiaTurno
+              ? Cores.prioridadeCritica
+              : Theme.of(context).colorScheme.outlineVariant,
           width: resposta.bloqueiaTurno ? 2 : 1,
         ),
       ),
@@ -498,10 +506,10 @@ class _ItemChecklistCartao extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.descricao,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Cores.conteudo,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -615,10 +623,10 @@ class _BotaoResposta extends StatelessWidget {
         height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selecionado ? cor : Cores.superficie,
+          color: selecionado ? cor : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: selecionado ? cor : Cores.borda,
+            color: selecionado ? cor : Theme.of(context).colorScheme.outlineVariant,
             width: selecionado ? 2 : 1,
           ),
         ),
@@ -638,7 +646,9 @@ class _BotaoResposta extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: selecionado ? Cores.marcaContraste : Cores.conteudo,
+                  color: selecionado
+                      ? Cores.marcaContraste
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

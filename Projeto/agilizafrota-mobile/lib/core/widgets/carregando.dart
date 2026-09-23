@@ -18,7 +18,7 @@ class Carregando extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               rotulo!,
-              style: const TextStyle(color: Cores.conteudoSuave, fontSize: 15),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 15),
             ),
           ],
         ],

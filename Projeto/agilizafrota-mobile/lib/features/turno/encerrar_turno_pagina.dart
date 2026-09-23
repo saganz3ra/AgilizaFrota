@@ -138,18 +138,18 @@ class _EncerrarTurnoPaginaState extends State<EncerrarTurnoPagina> {
                 children: [
                   Text(
                     '${widget.veiculo.placa} - ${widget.veiculo.modelo}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Cores.conteudo,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Turno aberto com ${widget.turno.kmInicial} km',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Cores.conteudoSuave,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -176,12 +176,12 @@ class _EncerrarTurnoPaginaState extends State<EncerrarTurnoPagina> {
           ),
           const SizedBox(height: 24),
 
-          const Text(
+          Text(
             'Foto do painel',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: Cores.conteudo,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
@@ -193,9 +193,9 @@ class _EncerrarTurnoPaginaState extends State<EncerrarTurnoPagina> {
               child: Container(
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Cores.superficie,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Cores.borda, width: 2),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                 ),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,

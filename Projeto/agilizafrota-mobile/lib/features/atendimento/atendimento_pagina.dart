@@ -354,7 +354,7 @@ class _AtendimentoPaginaState extends State<AtendimentoPagina> {
           children: [
             Text(
               explicacao,
-              style: const TextStyle(fontSize: 15, color: Cores.conteudoSuave),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -403,10 +403,10 @@ class _AtendimentoPaginaState extends State<AtendimentoPagina> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'A recepcao do destino ja foi avisada automaticamente na '
                 'chegada.',
-                style: TextStyle(fontSize: 14, color: Cores.conteudoSuave),
+                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -461,10 +461,10 @@ class _AtendimentoPaginaState extends State<AtendimentoPagina> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Use quando a ocorrencia se resolver sem transporte. '
               'O chamado volta para a Central.',
-              style: TextStyle(fontSize: 15, color: Cores.conteudoSuave),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -549,10 +549,10 @@ class _CartaoOcorrencia extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               chamado.natureza,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Cores.conteudo,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             if (chamado.origemEndereco != null) ...[
@@ -593,12 +593,12 @@ class _LinhaDoTempo extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Andamento',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Cores.conteudo,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -639,7 +639,7 @@ class _Etapa extends StatelessWidget {
         ? Cores.statusDisponivel
         : atual
             ? Cores.marca
-            : Cores.borda;
+            : Theme.of(context).colorScheme.outlineVariant;
 
     return IntrinsicHeight(
       child: Row(
@@ -651,21 +651,21 @@ class _Etapa extends StatelessWidget {
                 height: 32,
                 width: 32,
                 decoration: BoxDecoration(
-                  color: ativa ? cor : Cores.superficie,
+                  color: ativa ? cor : Theme.of(context).colorScheme.surface,
                   shape: BoxShape.circle,
                   border: Border.all(color: cor, width: 2),
                 ),
                 child: Icon(
                   concluida ? Icons.check : icone,
                   size: 18,
-                  color: ativa ? Cores.marcaContraste : Cores.conteudoSuave,
+                  color: ativa ? Cores.marcaContraste : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               if (!ultima)
                 Expanded(
                   child: Container(
                     width: 2,
-                    color: concluida ? Cores.statusDisponivel : Cores.borda,
+                    color: concluida ? Cores.statusDisponivel : Theme.of(context).colorScheme.outlineVariant,
                   ),
                 ),
             ],
@@ -678,7 +678,7 @@ class _Etapa extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: atual ? FontWeight.w700 : FontWeight.w500,
-                color: ativa ? Cores.conteudo : Cores.conteudoSuave,
+                color: ativa ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -704,18 +704,18 @@ class _Linha extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icone, size: 20, color: Cores.conteudoSuave),
+        Icon(icone, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(width: 10),
         Text(
           '$rotulo: ',
-          style: const TextStyle(fontSize: 15, color: Cores.conteudoSuave),
+          style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Expanded(
           child: Text(
             valor,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Cores.conteudo,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -46,7 +46,6 @@ class _LoginPaginaState extends State<LoginPagina> {
     final erro = context.watch<AuthServico>().erro;
 
     return Scaffold(
-      backgroundColor: Cores.superficie,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -125,10 +124,13 @@ class _LoginPaginaState extends State<LoginPagina> {
                     ),
                     const SizedBox(height: 24),
 
-                    const Text(
+                    Text(
                       'Esqueceu a senha? Procure a Central para redefinir.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Cores.conteudoSuave, fontSize: 14),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
                     ),
 
                     // Em desenvolvimento, mostrar o servidor ajuda a
@@ -138,8 +140,8 @@ class _LoginPaginaState extends State<LoginPagina> {
                       Text(
                         'Servidor: ${Ambiente.apiUrl}',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Cores.conteudoSuave,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
                       ),
@@ -177,18 +179,21 @@ class _Marca extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Agiliza Frota',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w700,
-            color: Cores.conteudo,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Aplicativo do motorista',
-          style: TextStyle(fontSize: 16, color: Cores.conteudoSuave),
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

@@ -102,9 +102,9 @@ class _FilaPaginaState extends State<FilaPagina> {
                     ],
                     Text(
                       '${itens.length} registro(s) guardado(s) no aparelho.',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
-                        color: Cores.conteudoSuave,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -152,20 +152,20 @@ class _FilaPaginaState extends State<FilaPagina> {
             const Icon(Icons.cloud_done_outlined,
                 size: 56, color: Cores.statusDisponivel),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Tudo enviado',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Cores.conteudo,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Nenhum registro aguardando. Todos os seus lancamentos '
               'chegaram a Central.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, color: Cores.conteudoSuave),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -188,10 +188,10 @@ class _CartaoItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Cores.superficie,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: falhou ? Cores.prioridadeAlta : Cores.borda,
+          color: falhou ? Cores.prioridadeAlta : Theme.of(context).colorScheme.outlineVariant,
           width: falhou ? 2 : 1,
         ),
       ),
@@ -203,16 +203,16 @@ class _CartaoItem extends StatelessWidget {
               Icon(
                 falhou ? Icons.error_outline : Icons.schedule,
                 size: 20,
-                color: falhou ? Cores.prioridadeAlta : Cores.conteudoSuave,
+                color: falhou ? Cores.prioridadeAlta : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   item.descricao,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Cores.conteudo,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -221,7 +221,7 @@ class _CartaoItem extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Registrado em ${_momento(item.ocorridoEm)}',
-            style: const TextStyle(fontSize: 14, color: Cores.conteudoSuave),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           if (falhou) ...[
             const SizedBox(height: 10),

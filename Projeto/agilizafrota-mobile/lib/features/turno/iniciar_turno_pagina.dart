@@ -253,7 +253,10 @@ class _IniciarTurnoPaginaState extends State<IniciarTurnoPagina> {
               prefixIcon: Icon(Icons.directions_car_outlined),
             ),
             items: _veiculos
-                .map((v) => DropdownMenuItem(value: v, child: Text(v.rotulo)))
+                .map((v) => DropdownMenuItem(
+                  value: v,
+                  child: Text('${v.rotulo}  ·  ${v.finalidade}'),
+                ))
                 .toList(),
             onChanged: _enviando ? null : _selecionarVeiculo,
           ),

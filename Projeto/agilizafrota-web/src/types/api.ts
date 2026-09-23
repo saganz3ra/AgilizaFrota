@@ -17,10 +17,23 @@ export interface Usuario {
 
 export type StatusVeiculo = "disponivel" | "em_uso" | "manutencao";
 
+export type TipoViatura = "A" | "B" | "C" | "D" | "E" | "F";
+
+/** Rotulo legivel de cada tipo de viatura (RF02). Fonte unica no web. */
+export const FINALIDADE_VIATURA: Record<TipoViatura, string> = {
+  A: "Transporte Simples",
+  B: "Suporte Básico de Vida",
+  C: "Viatura de Resgate",
+  D: "Suporte Avançado (UTI Móvel)",
+  E: "Aeronave",
+  F: "Embarcação",
+};
+
 export interface Veiculo {
   id: string;
   placa: string;
   modelo: string;
+  tipo: TipoViatura;
   marca: string | null;
   ano: number | null;
   quilometragem_atual: number;

@@ -6,6 +6,7 @@ class VeiculoOpcao {
   final String id;
   final String placa;
   final String modelo;
+  final String tipo;
   final String status;
   final int quilometragemAtual;
 
@@ -13,6 +14,7 @@ class VeiculoOpcao {
     required this.id,
     required this.placa,
     required this.modelo,
+    required this.tipo,
     required this.status,
     required this.quilometragemAtual,
   });
@@ -21,11 +23,24 @@ class VeiculoOpcao {
         id: j['id'] as String,
         placa: (j['placa'] as String?) ?? '',
         modelo: (j['modelo'] as String?) ?? '',
+        tipo: (j['tipo'] as String?) ?? 'A',
         status: (j['status'] as String?) ?? '',
         quilometragemAtual: (j['quilometragem_atual'] as num?)?.toInt() ?? 0,
       );
 
   String get rotulo => '$placa - $modelo';
+
+  /// Rotulo legivel do tipo de viatura (RF02). O codigo A-F vem do backend.
+  String get finalidade =>
+      const {
+        'A': 'Transporte Simples',
+        'B': 'Suporte Básico de Vida',
+        'C': 'Viatura de Resgate',
+        'D': 'Suporte Avançado (UTI Móvel)',
+        'E': 'Aeronave',
+        'F': 'Embarcação',
+      }[tipo] ??
+      'Tipo $tipo';
 }
 
 /// Resposta do motorista a um item do checklist (RF04).

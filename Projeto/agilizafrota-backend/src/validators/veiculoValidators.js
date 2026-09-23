@@ -5,6 +5,9 @@ const { z } = require('zod');
 
 const STATUS = ['disponivel', 'em_uso', 'manutencao'];
 
+// Tipos de viatura hospitalar (RF02). Codigo A-F; rotulo legivel vive no cliente.
+const TIPOS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
 // Placa: aceita formato antigo (ABC1234) e Mercosul (ABC1D23).
 const placa = z
   .string()
@@ -22,6 +25,7 @@ const criarVeiculo = z.object({
   body: z.object({
     placa,
     modelo: z.string().trim().min(1, 'Modelo obrigatorio.').max(50),
+    tipo: z.enum(TIPOS, { errorMap: () => ({ message: 'Tipo de viatura invalido (use A a F).' }) }),
     marca: z.string().trim().max(30).optional(),
     ano: z.number().int().min(1950).max(anoAtual + 1).optional(),
     quilometragem_atual: z.number().int().min(0).optional(),
@@ -37,6 +41,7 @@ const atualizarVeiculo = z.object({
     .object({
       placa: placa.optional(),
       modelo: z.string().trim().min(1).max(50).optional(),
+      tipo: z.enum(TIPOS).optional(),
       marca: z.string().trim().max(30).optional(),
       ano: z.number().int().min(1950).max(anoAtual + 1).optional(),
       quilometragem_atual: z.number().int().min(0).optional(),

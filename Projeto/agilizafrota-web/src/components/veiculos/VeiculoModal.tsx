@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { Unidade, Veiculo, StatusVeiculo } from "@/types/api";
+import { Unidade, Veiculo, StatusVeiculo, TipoViatura, FINALIDADE_VIATURA } from "@/types/api";
 import {
   coletar,
   inteiroOpcional,
@@ -31,6 +31,7 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
   const edicao = Boolean(veiculo);
   const [placa, setPlaca] = useState("");
   const [modelo, setModelo] = useState("");
+  const [tipo, setTipo] = useState<TipoViatura | "">("");
   const [marca, setMarca] = useState("");
   const [ano, setAno] = useState("");
   const [km, setKm] = useState("");
@@ -46,6 +47,7 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
     limparTudo();
     setPlaca(veiculo?.placa ?? "");
     setModelo(veiculo?.modelo ?? "");
+    setTipo(veiculo?.tipo ?? "");
     setMarca(veiculo?.marca ?? "");
     setAno(veiculo?.ano ? String(veiculo.ano) : "");
     setKm(veiculo ? String(veiculo.quilometragem_atual) : "");
@@ -62,6 +64,7 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
     const encontrados = coletar({
       placa: validarPlaca(placa),
       modelo: obrigatorio(modelo, "Modelo") ?? tamanho(modelo, { max: 50, nome: "Modelo" }),
+      tipo: obrigatorio(tipo, "Tipo"),
       marca: tamanho(marca, { max: 30, nome: "Marca" }),
       ano: inteiroOpcional(ano, { min: 1950, max: ANO_ATUAL + 1, nome: "Ano" }),
       km: inteiroOpcional(km, { min: 0, nome: "Km atual" }),
@@ -74,6 +77,7 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
       const corpo: Record<string, unknown> = {
         placa: placa.trim().toUpperCase(),
         modelo: modelo.trim(),
+        tipo,
       };
       if (marca.trim()) corpo.marca = marca.trim();
       if (ano) corpo.ano = Number(ano);
@@ -129,6 +133,21 @@ export function VeiculoModal({ aberto, aoFechar, aoSalvar, unidades, veiculo }: 
             erro={erros.modelo}
           />
         </div>
+        <Select
+          label="Tipo de viatura"
+          value={tipo}
+          onChange={(e) => {
+            setTipo(e.target.value as TipoViatura);
+            limpar("tipo");
+          }}
+          opcoes={[
+            { valor: "", rotulo: "— Selecione o tipo —" },
+            ...(Object.entries(FINALIDADE_VIATURA) as [TipoViatura, string][]).map(
+              ([valor, nome]) => ({ valor, rotulo: `${valor} — ${nome}` }),
+            ),
+          ]}
+          erro={erros.tipo}
+        />
         <div className="grid grid-cols-3 gap-4">
           <Input
             label="Marca"

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Truck, Plus, Pencil, Power } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
-import { Unidade, Veiculo, StatusVeiculo } from "@/types/api";
+import { Unidade, Veiculo, StatusVeiculo, FINALIDADE_VIATURA } from "@/types/api";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -143,6 +143,7 @@ export default function VeiculosPage() {
                   <tr className="border-b border-surface-border text-left text-content-muted">
                     <th className="px-5 py-3 font-medium">Placa</th>
                     <th className="px-5 py-3 font-medium">Modelo</th>
+                    <th className="px-5 py-3 font-medium">Tipo</th>
                     <th className="px-5 py-3 font-medium">Unidade</th>
                     <th className="px-5 py-3 font-medium">Km</th>
                     <th className="px-5 py-3 font-medium">Status</th>
@@ -162,6 +163,9 @@ export default function VeiculosPage() {
                       <td className="px-5 py-3 text-content">
                         {v.modelo}
                         {v.marca ? <span className="text-content-muted"> · {v.marca}</span> : null}
+                      </td>
+                      <td className="px-5 py-3 text-content-muted">
+                        <span className="font-semibold text-content">{v.tipo}</span> · {FINALIDADE_VIATURA[v.tipo]}
                       </td>
                       <td className="px-5 py-3 text-content-muted">{nomeUnidade(v.unidade_id)}</td>
                       <td className="px-5 py-3 text-content-muted">{v.quilometragem_atual.toLocaleString("pt-BR")}</td>

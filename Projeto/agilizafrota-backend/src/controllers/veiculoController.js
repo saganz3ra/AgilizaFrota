@@ -6,7 +6,7 @@ const { query } = require('../config/db');
 const { AppError } = require('../utils/AppError');
 const { asyncHandler } = require('../utils/asyncHandler');
 
-const COLUNAS = `id, placa, modelo, marca, ano, quilometragem_atual, status,
+const COLUNAS = `id, placa, modelo, tipo, marca, ano, quilometragem_atual, status,
                  unidade_id, ultima_revisao, ativo, criado_em, atualizado_em`;
 
 async function validarUnidade(unidadeId) {
@@ -55,7 +55,7 @@ const obter = asyncHandler(async (req, res) => {
 
 // POST /api/veiculos
 const criar = asyncHandler(async (req, res) => {
-  const { placa, modelo, marca, ano, quilometragem_atual, status, unidade_id, ultima_revisao } = req.body;
+  const { placa, modelo, tipo, marca, ano, quilometragem_atual, status, unidade_id, ultima_revisao } = req.body;
 
   await validarUnidade(unidade_id);
 
@@ -66,12 +66,13 @@ const criar = asyncHandler(async (req, res) => {
 
   const { rows } = await query(
     `INSERT INTO veiculos
-       (placa, modelo, marca, ano, quilometragem_atual, status, unidade_id, ultima_revisao)
-     VALUES ($1, $2, $3, $4, COALESCE($5, 0), COALESCE($6, 'disponivel'), $7, $8)
+       (placa, modelo, tipo, marca, ano, quilometragem_atual, status, unidade_id, ultima_revisao)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, 0), COALESCE($7, 'disponivel'), $8, $9)
      RETURNING ${COLUNAS}`,
     [
       placa,
       modelo,
+      tipo,
       marca || null,
       ano ?? null,
       quilometragem_atual ?? null,
@@ -154,7 +155,7 @@ const atualizar = asyncHandler(async (req, res) => {
   }
 
   const permitidos = [
-    'placa', 'modelo', 'marca', 'ano', 'quilometragem_atual',
+    'placa', 'modelo', 'tipo', 'marca', 'ano', 'quilometragem_atual',
     'status', 'unidade_id', 'ultima_revisao', 'ativo',
   ];
   const campos = [];
